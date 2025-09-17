@@ -1,4 +1,4 @@
-🚀 Project Title & Tagline
+VideoLens Pro & AI-powered video analysis platform
 =========================
 ### VideoLens Pro - AI Video Analysis
 📹 Unlock the power of AI-driven video analysis with VideoLens Pro, a cutting-edge platform designed to revolutionize the way you understand and interact with video content.
