@@ -25,6 +25,7 @@
 ---
 
 ## 🚀 30-second start
+```
 bash
 # 1. clone repo (or just copy the two files)
 git clone https://github.com/yourname/videolens-pro.git
@@ -41,7 +42,7 @@ python main.py
 # just double-click `index.html` or serve it via any static server
 
 Visit [http://localhost:8000](http://localhost:8000) – the interactive docs (Swagger) are live.
-
+```
 ---
 
 ## 🔌 API cheat-sheet
