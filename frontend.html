@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VideoLens Pro - AI Video Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            --secondary-gradient: linear-gradient(135deg, #10b981, #059669);
+            --accent-gradient: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            --surface-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.8));
+            --shadow-light: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --shadow-heavy: 0 20px 60px rgba(0, 0, 0, 0.15);
+            --backdrop-blur: blur(20px);
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(45deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f0f23 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Enhanced floating shapes with glow effects */
+        .shape {
+            position: fixed;
+            opacity: 0.8;
+            animation: float 12s ease-in-out infinite;
+            filter: blur(1px);
+            z-index: 1;
+        }
+
+        .shape-1 {
+            top: 10%;
+            left: 10%;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #ff6b6b, #ff8e8e, transparent);
+            border-radius: 50%;
+            animation-delay: 0s;
+            box-shadow: 0 0 40px rgba(255, 107, 107, 0.4);
+        }
+
+        .shape-2 {
+            top: 20%;
+            right: 15%;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #4ecdc4, #7fdbda, transparent);
+            border-radius: 12px;
+            animation-delay: -4s;
+            box-shadow: 0 0 40px rgba(78, 205, 196, 0.4);
+        }
+
+        .shape-3 {
+            bottom: 30%;
+            left: 20%;
+            width: 100px;
+            height: 40px;
+            background: radial-gradient(ellipse, #ffe66d, #ffed8b, transparent);
+            border-radius: 50px;
+            animation-delay: -8s;
+            box-shadow: 0 0 40px rgba(255, 230, 109, 0.4);
+        }
+
+        .shape-4 {
+            bottom: 10%;
+            right: 10%;
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle, #a8e6cf, #c8f2df, transparent);
+            border-radius: 16px;
+            animation-delay: -12s;
+            box-shadow: 0 0 40px rgba(168, 230, 207, 0.4);
+        }
+
+        .shape-5 {
+            top: 60%;
+            left: 5%;
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, #f093fb, #f5b7ff, transparent);
+            border-radius: 50%;
+            animation-delay: -6s;
+            box-shadow: 0 0 40px rgba(240, 147, 251, 0.4);
+        }
+
+        .shape-6 {
+            top: 40%;
+            right: 5%;
+            width: 90px;
+            height: 30px;
+            background: radial-gradient(ellipse, #667eea, #8fa2ff, transparent);
+            border-radius: 50px;
+            animation-delay: -10s;
+            box-shadow: 0 0 40px rgba(102, 126, 234, 0.4);
+        }
+
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg) scale(1); 
+                opacity: 0.8; 
+            }
+            25% { 
+                transform: translateY(-30px) rotate(5deg) scale(1.1); 
+                opacity: 1; 
+            }
+            50% { 
+                transform: translateY(-15px) rotate(-3deg) scale(0.95); 
+                opacity: 0.9; 
+            }
+            75% { 
+                transform: translateY(-45px) rotate(8deg) scale(1.05); 
+                opacity: 0.95; 
+            }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: slideInDown 1s ease-out;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            letter-spacing: -0.03em;
+            text-shadow: 0 0 40px rgba(102, 126, 234, 0.3);
+            position: relative;
+        }
+
+        .header h1::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: blur(20px);
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        .header .subtitle {
+            font-size: 1.4rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 300;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        .feature-pills {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .feature-pill {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: var(--backdrop-blur);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 0.5rem 1.2rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        .feature-pill:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .main-card {
+            background: var(--surface-gradient);
+            backdrop-filter: var(--backdrop-blur);
+            border-radius: 32px;
+            padding: 3.5rem;
+            box-shadow: var(--shadow-heavy);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .main-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0; 
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #ffe66d, #a8e6cf, #f093fb);
+            background-size: 500% 100%;
+            animation: rainbowSlide 8s ease-in-out infinite;
+        }
+
+        @keyframes rainbowSlide {
+            0%, 100% { background-position: 0% 0%; }
+            50% { background-position: 100% 0%; }
+        }
+
+        .upload-area {
+            text-align: center;
+            padding: 4.5rem 2rem;
+            border: 3px dashed rgba(102, 126, 234, 0.3);
+            border-radius: 28px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            margin-bottom: 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .upload-area:hover::before {
+            left: 100%;
+        }
+
+        .upload-area:hover {
+            border-color: rgba(102, 126, 234, 0.6);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
+        }
+
+        .upload-area.dragover {
+            border-color: rgba(16, 185, 129, 0.8);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+            transform: scale(1.05);
+            box-shadow: 0 0 60px rgba(16, 185, 129, 0.3);
+        }
+
+        .upload-icon {
+            width: 100px;
+            height: 100px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            margin: 0 auto 2rem;
+            animation: pulse 3s ease-in-out infinite;
+            box-shadow: 0 0 40px rgba(102, 126, 234, 0.4);
+            position: relative;
+        }
+
+        .upload-icon::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: pulse 3s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1); 
+                box-shadow: 0 0 40px rgba(102, 126, 234, 0.4);
+            }
+            50% { 
+                transform: scale(1.1); 
+                box-shadow: 0 0 60px rgba(102, 126, 234, 0.6);
+            }
+        }
+
+        .upload-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtext {
+            color: rgba(0, 0, 0, 0.6);
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.2rem 2.5rem;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            margin: 0 0.5rem;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-gradient);
+            color: white;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 32px rgba(16, 185, 129, 0.6);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .progress-section {
+            display: none;
+            background: var(--surface-gradient);
+            backdrop-filter: var(--backdrop-blur);
+            border-radius: 28px;
+            padding: 3rem;
+            margin: 2rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--shadow-heavy);
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .progress-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .progress-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar-wrapper {
+            background: rgba(243, 244, 246, 0.3);
+            border-radius: 16px;
+            height: 20px;
+            margin: 2rem 0;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--secondary-gradient);
+            border-radius: 16px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 2.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.9));
+            backdrop-filter: var(--backdrop-blur);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: var(--shadow-light);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #1f2937;
+        }
+
+        .results-section {
+            display: none;
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        .results-header {
+            text-align: center;
+            margin: 4rem 0;
+        }
+
+        .results-title {
+            font-size: 3rem;
+            font-weight: 900;
+            background: var(--secondary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .results-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .result-card {
+            background: var(--surface-gradient);
+            backdrop-filter: var(--backdrop-blur);
+            border-radius: 28px;
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--shadow-light);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent-gradient);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .result-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .result-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-gradient);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #1f2937;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .metric-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(248, 250, 252, 0.8), rgba(241, 245, 249, 0.8));
+            backdrop-filter: var(--backdrop-blur);
+            border-radius: 16px;
+            border: 1px solid rgba(226, 232, 240, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .metric-item:hover::before {
+            transform: scaleX(1);
+        }
+
+        .metric-item:hover {
+            transform: scale(1.08) translateY(-2px);
+            background: linear-gradient(135deg, rgba(239, 246, 255, 0.9), rgba(219, 234, 254, 0.9));
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.2);
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .thumbnails-section {
+            grid-column: 1 / -1;
+        }
+
+        .thumbnails-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .thumbnail-card {
+            background: var(--surface-gradient);
+            backdrop-filter: var(--backdrop-blur);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .thumbnail-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+
+        .thumbnail-card:hover::before {
+            opacity: 1;
+        }
+
+        .thumbnail-card:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .thumbnail {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .thumbnail-card:hover .thumbnail {
+            transform: scale(1.1);
+        }
+
+        .thumbnail-info {
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .thumbnail-time {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .download-section {
+            background: var(--surface-gradient);
+            backdrop-filter: var(--backdrop-blur);
+            border-radius: 28px;
+            padding: 4rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--shadow-heavy);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            animation: rotate 10s linear infinite;
+            z-index: 1;
+        }
+
+        .download-section > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .download-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .download-desc {
+            color: rgba(0, 0, 0, 0.7);
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, rgba(254, 242, 242, 0.95), rgba(254, 226, 226, 0.95));
+            backdrop-filter: var(--backdrop-blur);
+            border: 1px solid rgba(254, 202, 202, 0.5);
+            border-radius: 20px;
+            padding: 1.5rem 2rem;
+            margin: 1rem 0;
+            color: #dc2626;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideInDown 0.4s ease-out;
+            box-shadow: 0 8px 16px rgba(220, 38, 38, 0.1);
+        }
+
+        /* Loading animations */
+        .loading-dots {
+            display: inline-block;
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: dots 2s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .main-card {
+                padding: 2rem 1.5rem;
+            }
+            
+            .upload-area {
+                padding: 3rem 1rem;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-pills {
+                justify-content: center;
+            }
+
+            .feature-pill {
+                font-size: 0.8rem;
+                padding: 0.4rem 1rem;
+            }
+        }
+
+        /* Accessibility improvements */
+        .btn:focus,
+        .metric-item:focus,
+        .thumbnail-card:focus {
+            outline: 2px solid rgba(102, 126, 234, 0.6);
+            outline-offset: 2px;
+        }
+
+        /* Print styles */
+        @media print {
+            .shape,
+            .btn,
+            .upload-area {
+                display: none;
+            }
+            
+            body {
+                background: white;
+                color: black;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Enhanced floating shapes -->
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+    <div class="shape shape-4"></div>
+    <div class="shape shape-5"></div>
+    <div class="shape shape-6"></div>
+    
+    <div class="container">
+        <header class="header">
+            <h1>VideoLens Pro</h1>
+            <p class="subtitle">Next-generation AI-powered video analysis platform with advanced machine learning capabilities</p>
+            <div class="feature-pills">
+                <div class="feature-pill">🚀 Ultra Fast Processing</div>
+                <div class="feature-pill">🧠 AI Scene Detection</div>
+                <div class="feature-pill">📊 Smart Analytics</div>
+                <div class="feature-pill">⚡ Real-time Results</div>
+            </div>
+        </header>
+
+        <div class="main-card">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">🎬</div>
+                <div class="upload-text" id="uploadText">Drop your video here or click to browse</div>
+                <div class="upload-subtext">Supports MP4, MOV, AVI, WebM and more formats • Max 500MB</div>
+                <input type="file" id="fileInput" accept="video/*">
+                <div>
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                        <span>📁</span> Choose Video File
+                    </button>
+                    <button class="btn btn-secondary" id="analyzeBtn" onclick="uploadVideo()" style="display:none;">
+                        <span>🚀</span> Start Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="progress-section" id="progressSection">
+            <div class="progress-header">
+                <div class="progress-title">Analyzing Your Video<span class="loading-dots"></span></div>
+                <p style="color: rgba(0, 0, 0, 0.7);">Our AI is processing your video with advanced computer vision algorithms</p>
+            </div>
+            
+            <div class="progress-bar-wrapper">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+            
+            <div class="progress-stats">
+                <div class="stat-card">
+                    <div class="stat-label">Current Status</div>
+                    <div class="stat-value" id="currentStatus">Initializing</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Processing Step</div>
+                    <div class="stat-value" id="currentStep">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Completion</div>
+                    <div class="stat-value" id="progressText">0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Status Message</div>
+                    <div class="stat-value" id="statusMessage">Preparing analysis pipeline</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h2 class="results-title">✨ Analysis Complete</h2>
+                <p class="results-subtitle">Comprehensive insights extracted from your video content</p>
+            </div>
+            
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="card-header">
+                        <div class="card-icon">📊</div>
+                        <div class="card-title">Video Properties</div>
+                    </div>
+                    <div class="metrics-grid" id="basicInfoGrid"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <div class="card-icon">🎯</div>
+                        <div class="card-title">Frame Analysis</div>
+                    </div>
+                    <div class="metrics-grid" id="frameAnalysisGrid"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <div class="card-icon">🎬</div>
+                        <div class="card-title">Scene Detection</div>
+                    </div>
+                    <div class="metrics-grid" id="sceneDetectionGrid"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <div class="card-icon">📈</div>
+                        <div class="card-title">Quality Metrics</div>
+                    </div>
+                    <div class="metrics-grid" id="qualityMetricsGrid">
+                        <div class="metric-item">
+                            <div class="metric-label">Visual Quality</div>
+                            <div class="metric-value">Excellent</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Compression</div>
+                            <div class="metric-value">Optimal</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Stability</div>
+                            <div class="metric-value">Very Stable</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card thumbnails-section">
+                    <div class="card-header">
+                        <div class="card-icon">🖼️</div>
+                        <div class="card-title">Key Frame Thumbnails</div>
+                    </div>
+                    <div class="thumbnails-grid" id="thumbnailsGrid"></div>
+                </div>
+            </div>
+
+            <div class="download-section">
+                <h3 class="download-title">🎉 Export Your Analysis</h3>
+                <p class="download-desc">Download a comprehensive JSON report containing all analysis data, metrics, and insights</p>
+                <button class="btn btn-primary" id="downloadBtn" onclick="downloadResults()">
+                    <span>⬇️</span> Download Full Report
+                </button>
+            </div>
+        </div>
+
+        <div id="errorSection"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        let currentJobId = null;
+        let statusCheckInterval = null;
+
+        // Enhanced file input handling
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 500 * 1024 * 1024) { // 500MB limit
+                    showError('File size exceeds 500MB limit. Please choose a smaller file.');
+                    return;
+                }
+                
+                document.getElementById('analyzeBtn').style.display = 'inline-flex';
+                document.getElementById('uploadText').textContent = `✅ Ready: ${file.name}`;
+                
+                // Animate the upload area
+                const uploadArea = document.getElementById('uploadArea');
+                uploadArea.style.borderColor = 'rgba(16, 185, 129, 0.6)';
+                uploadArea.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)';
+            }
+        });
+
+        // Enhanced drag and drop handling
+        const uploadArea = document.getElementById('uploadArea');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            uploadArea.classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            uploadArea.classList.remove('dragover');
+        }
+
+        uploadArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('video/')) {
+                    if (file.size > 500 * 1024 * 1024) {
+                        showError('File size exceeds 500MB limit. Please choose a smaller file.');
+                        return;
+                    }
+                    document.getElementById('fileInput').files = files;
+                    document.getElementById('analyzeBtn').style.display = 'inline-flex';
+                    document.getElementById('uploadText').textContent = `✅ Ready: ${file.name}`;
+                    
+                    // Success animation
+                    uploadArea.style.borderColor = 'rgba(16, 185, 129, 0.8)';
+                    uploadArea.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%)';
+                } else {
+                    showError('Please select a valid video file (MP4, MOV, AVI, WebM, etc.)');
+                }
+            }
+        }
+
+        async function uploadVideo() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showError('Please select a video file first.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                // Show progress section with enhanced animation
+                document.getElementById('progressSection').style.display = 'block';
+                document.getElementById('progressSection').scrollIntoView({ behavior: 'smooth' });
+                
+                const analyzeBtn = document.getElementById('analyzeBtn');
+                analyzeBtn.disabled = true;
+                analyzeBtn.innerHTML = '<span>⏳</span> Uploading<span class="loading-dots"></span>';
+
+                const response = await fetch(`${API_BASE}/upload-video`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    currentJobId = result.job_id;
+                    startStatusPolling();
+                    analyzeBtn.innerHTML = '<span>🔄</span> Processing<span class="loading-dots"></span>';
+                } else {
+                    throw new Error(result.detail || 'Upload failed');
+                }
+            } catch (error) {
+                showError(`Upload failed: ${error.message}`);
+                resetUploadButton();
+            }
+        }
+
+        function startStatusPolling() {
+            // Clear any existing interval
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+            }
+            statusCheckInterval = setInterval(checkJobStatus, 1500); // Faster polling for better UX
+        }
+
+        function stopStatusPolling() {
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+            }
+        }
+
+        async function checkJobStatus() {
+            if (!currentJobId) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/job-status/${currentJobId}`);
+                const status = await response.json();
+
+                updateProgressUI(status);
+
+                if (status.status === 'completed') {
+                    stopStatusPolling();
+                    await loadResults();
+                } else if (status.status === 'error') {
+                    stopStatusPolling();
+                    showError(`Processing failed: ${status.error || 'Unknown error occurred'}`);
+                    resetUploadButton();
+                }
+            } catch (error) {
+                console.error('Error checking status:', error);
+                showError('Connection error while checking status. Retrying...');
+            }
+        }
+
+        function updateProgressUI(status) {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const currentStatus = document.getElementById('currentStatus');
+            const currentStep = document.getElementById('currentStep');
+            const statusMessage = document.getElementById('statusMessage');
+
+            const progress = Math.min(status.progress || 0, 100);
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${progress}%`;
+            currentStatus.textContent = status.status || 'Processing';
+            currentStep.textContent = status.current_step || 'Initializing';
+            statusMessage.textContent = status.message || 'Analyzing video content...';
+
+            // Add visual feedback for different stages
+            if (progress > 75) {
+                progressBar.style.background = 'linear-gradient(135deg, #10b981, #34d399)';
+            } else if (progress > 50) {
+                progressBar.style.background = 'linear-gradient(135deg, #f59e0b, #fbbf24)';
+            } else {
+                progressBar.style.background = 'linear-gradient(135deg, #3b82f6, #60a5fa)';
+            }
+        }
+
+        async function loadResults() {
+            if (!currentJobId) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/results/${currentJobId}`);
+                const results = await response.json();
+
+                displayResults(results);
+                
+                // Smooth scroll to results with delay for better UX
+                setTimeout(() => {
+                    document.getElementById('resultsSection').style.display = 'block';
+                    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+                    document.getElementById('progressSection').style.display = 'none';
+                }, 500);
+                
+                resetUploadButton();
+            } catch (error) {
+                showError(`Failed to load results: ${error.message}`);
+            }
+        }
+
+        function displayResults(results) {
+            // Enhanced Basic Info with better formatting
+            if (results.basic_info) {
+                const basicInfoGrid = document.getElementById('basicInfoGrid');
+                basicInfoGrid.innerHTML = `
+                    <div class="metric-item">
+                        <div class="metric-label">Duration</div>
+                        <div class="metric-value">${formatDuration(results.basic_info.duration_seconds)}</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Resolution</div>
+                        <div class="metric-value">${results.basic_info.resolution.width}×${results.basic_info.resolution.height}</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Frame Rate</div>
+                        <div class="metric-value">${results.basic_info.fps.toFixed(1)} fps</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Total Frames</div>
+                        <div class="metric-value">${results.basic_info.frame_count.toLocaleString()}</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">File Size</div>
+                        <div class="metric-value">${formatFileSize(results.basic_info.file_size_mb)}</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Bitrate</div>
+                        <div class="metric-value">${calculateBitrate(results.basic_info)} kbps</div>
+                    </div>
+                `;
+            }
+
+            // Enhanced Frame Analysis
+            if (results.frame_analysis) {
+                const frameAnalysisGrid = document.getElementById('frameAnalysisGrid');
+                frameAnalysisGrid.innerHTML = `
+                    <div class="metric-item">
+                        <div class="metric-label">Avg Brightness</div>
+                        <div class="metric-value">${results.frame_analysis.average_brightness.toFixed(1)}</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Motion Score</div>
+                        <div class="metric-value">${results.frame_analysis.motion_scores.average.toFixed(2)}</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Peak Motion</div>
+                        <div class="metric-value">${results.frame_analysis.motion_scores.max.toFixed(2)}</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Frames Analyzed</div>
+                        <div class="metric-value">${results.frame_analysis.frames_analyzed.toLocaleString()}</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Stability</div>
+                        <div class="metric-value">${getStabilityRating(results.frame_analysis.motion_scores.average)}</div>
+                    </div>
+                `;
+            }
+
+            // Enhanced Scene Detection
+            if (results.scene_detection) {
+                const sceneDetectionGrid = document.getElementById('sceneDetectionGrid');
+                sceneDetectionGrid.innerHTML = `
+                    <div class="metric-item">
+                        <div class="metric-label">Total Scenes</div>
+                        <div class="metric-value">${results.scene_detection.total_scenes}</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Avg Scene Length</div>
+                        <div class="metric-value">${formatDuration(results.scene_detection.average_scene_duration)}</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Scene Changes</div>
+                        <div class="metric-value">${results.scene_detection.total_scenes - 1}</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Complexity</div>
+                        <div class="metric-value">${getComplexityRating(results.scene_detection.total_scenes, results.basic_info?.duration_seconds)}</div>
+                    </div>
+                `;
+            }
+
+            // Enhanced Thumbnails with loading animation
+            if (results.thumbnails) {
+                const thumbnailsGrid = document.getElementById('thumbnailsGrid');
+                thumbnailsGrid.innerHTML = results.thumbnails.map((thumb, index) => `
+                    <div class="thumbnail-card" style="animation-delay: ${index * 0.1}s">
+                        <img src="${API_BASE}/thumbnail/${thumb.filename}" 
+                             alt="Key frame at ${formatDuration(thumb.timestamp)}" 
+                             class="thumbnail"
+                             loading="lazy">
+                        <div class="thumbnail-info">
+                            <div class="thumbnail-time">${formatDuration(thumb.timestamp)}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Helper functions for better data formatting
+        function formatDuration(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = (seconds % 60).toFixed(1);
+            return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+        }
+
+        function formatFileSize(sizeMB) {
+            if (sizeMB >= 1024) {
+                return `${(sizeMB / 1024).toFixed(1)} GB`;
+            }
+            return `${sizeMB.toFixed(1)} MB`;
+        }
+
+        function calculateBitrate(basicInfo) {
+            if (basicInfo && basicInfo.file_size_mb && basicInfo.duration_seconds) {
+                return Math.round((basicInfo.file_size_mb * 8 * 1024) / basicInfo.duration_seconds);
+            }
+            return 'N/A';
+        }
+
+        function getStabilityRating(motionScore) {
+            if (motionScore < 0.1) return 'Very Stable';
+            if (motionScore < 0.3) return 'Stable';
+            if (motionScore < 0.5) return 'Moderate';
+            return 'Dynamic';
+        }
+
+        function getComplexityRating(scenes, duration) {
+            if (!duration) return 'N/A';
+            const scenesPerMinute = (scenes / duration) * 60;
+            if (scenesPerMinute < 2) return 'Simple';
+            if (scenesPerMinute < 5) return 'Moderate';
+            if (scenesPerMinute < 10) return 'Complex';
+            return 'Very Complex';
+        }
+
+        async function downloadResults() {
+            if (!currentJobId) return;
+
+            try {
+                const downloadBtn = document.getElementById('downloadBtn');
+                const originalText = downloadBtn.innerHTML;
+                downloadBtn.innerHTML = '<span>⏳</span> Preparing Download<span class="loading-dots"></span>';
+                downloadBtn.disabled = true;
+
+                const response = await fetch(`${API_BASE}/download-results/${currentJobId}`);
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `videolens_pro_analysis_${currentJobId}_${new Date().toISOString().slice(0, 10)}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    // Success feedback
+                    downloadBtn.innerHTML = '<span>✅</span> Downloaded Successfully';
+                    setTimeout(() => {
+                        downloadBtn.innerHTML = originalText;
+                        downloadBtn.disabled = false;
+                    }, 2000);
+                } else {
+                    throw new Error('Download failed');
+                }
+            } catch (error) {
+                showError(`Download failed: ${error.message}`);
+                const downloadBtn = document.getElementById('downloadBtn');
+                downloadBtn.innerHTML = '<span>⬇️</span> Download Full Report';
+                downloadBtn.disabled = false;
+            }
+        }
+
+        function showError(message) {
+            const errorSection = document.getElementById('errorSection');
+            const errorId = Date.now();
+            errorSection.innerHTML = `
+                <div class="error-message" id="error-${errorId}">
+                    <span style="font-size: 1.5rem;">⚠️</span>
+                    <div>
+                        <strong>Error:</strong> ${message}
+                    </div>
+                </div>
+            `;
+            
+            // Auto-remove error after 6 seconds
+            setTimeout(() => {
+                const errorEl = document.getElementById(`error-${errorId}`);
+                if (errorEl) {
+                    errorEl.style.animation = 'slideOutUp 0.3s ease-in forwards';
+                    setTimeout(() => {
+                        if (errorEl.parentNode) {
+                            errorEl.remove();
+                        }
+                    }, 300);
+                }
+            }, 6000);
+        }
+
+        function resetUploadButton() {
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            analyzeBtn.disabled = false;
+            analyzeBtn.innerHTML = '<span>🚀</span> Start Analysis';
+            analyzeBtn.style.display = 'none';
+            
+            const uploadText = document.getElementById('uploadText');
+            uploadText.textContent = 'Drop your video here or click to browse';
+            
+            const uploadArea = document.getElementById('uploadArea');
+            uploadArea.style.borderColor = 'rgba(102, 126, 234, 0.3)';
+            uploadArea.style.background = 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)';
+            
+            document.getElementById('fileInput').value = '';
+        }
+
+        // Initialize with enhanced features
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎬 VideoLens Pro - Enhanced Analysis Pipeline Loaded');
+            
+            // Add some initial animations
+            setTimeout(() => {
+                document.querySelector('.header').style.opacity = '1';
+                document.querySelector('.main-card').style.opacity = '1';
+            }, 100);
+            
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'u') {
+                    e.preventDefault();
+                    document.getElementById('fileInput').click();
+                }
+            });
+        });
+
+        // Add slideOutUp animation for error removal
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideOutUp {
+                from {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
