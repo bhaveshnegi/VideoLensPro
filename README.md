@@ -1,80 +1,167 @@
-VideoLens Pro & AI-powered video analysis platform
-=========================
-### VideoLens Pro - AI Video Analysis
-📹 Unlock the power of AI-driven video analysis with VideoLens Pro, a cutting-edge platform designed to revolutionize the way you understand and interact with video content.
+```markdown
+# 🎬 VideoLens Pro – AI-Powered Video Analysis Pipeline
 
-📖 Description
----------------
-VideoLens Pro is an innovative project that combines the latest advancements in artificial intelligence, machine learning, and computer vision to provide a comprehensive video analysis platform. This project aims to bridge the gap between human intuition and machine-based analysis, enabling users to extract valuable insights from video data with unprecedented accuracy and efficiency. By leveraging the power of AI, VideoLens Pro can automatically detect objects, track movements, and identify patterns within video content, making it an indispensable tool for various industries, including security, entertainment, and education.
+> Drop a video, get instant Hollywood-grade insights.  
+> 100 % local, 100 % open-source, zero configuration.
 
-At its core, VideoLens Pro is built around a robust backend infrastructure, utilizing the FastAPI framework to create a scalable and high-performance video analysis pipeline. The frontend is designed to provide an intuitive and user-friendly interface, allowing users to upload videos, configure analysis settings, and visualize the results in a clear and concise manner. With its modular architecture and extensible design, VideoLens Pro is poised to become a leading platform for AI-driven video analysis, empowering developers, researchers, and professionals to unlock the full potential of video data.
+---
 
-The project's primary objective is to provide a flexible and customizable solution that can be tailored to meet the specific needs of various applications and use cases. By integrating with other AI-powered tools and services, VideoLens Pro can enhance its capabilities, enabling users to perform more complex tasks, such as sentiment analysis, facial recognition, and object detection. With its strong focus on innovation, scalability, and usability, VideoLens Pro is set to revolutionize the field of video analysis, transforming the way we understand and interact with video content.
+## ✨ What it does
+1. Drag-and-drop any video (≤ 500 MB)  
+2. Real-time progress bar while the AI pipeline runs  
+3. Receive a complete JSON report + 5 smart thumbnails  
+4. Download everything or embed the API in your own product
 
-✨ Features
------------
-Here are some of the key features that make VideoLens Pro an exceptional platform for AI-driven video analysis:
-1. **Object Detection**: Automatically detect objects within video content, including people, vehicles, and animals.
-2. **Movement Tracking**: Track the movement of objects across frames, enabling the analysis of motion patterns and trajectories.
-3. **Pattern Recognition**: Identify patterns within video data, such as shapes, colors, and textures.
-4. **Facial Recognition**: Detect and recognize faces within video content, enabling applications such as sentiment analysis and identity verification.
-5. **Sentiment Analysis**: Analyze the emotional tone and sentiment of video content, providing insights into audience engagement and reaction.
-6. **Video Summarization**: Automatically generate summaries of video content, highlighting key events and moments.
-7. **Customizable**: Configure analysis settings and parameters to tailor the platform to specific use cases and applications.
-8. **Scalable**: Built to handle large volumes of video data, VideoLens Pro can scale to meet the needs of demanding applications.
+---
 
-🧰 Tech Stack Table
--------------------
-| Component | Technology |
-| --- | --- |
-| Frontend | HTML, CSS, JavaScript |
-| Backend | FastAPI, Python, Uvicorn |
-| Tools | OpenCV, Scikit-learn, TensorFlow |
-| Database | SQLite, PostgreSQL |
-| Operating System | Windows, Linux, macOS |
+## 🧠 Analysis super-powers
+| Step | What you get |
+|---|---|
+| **Basic Info** | duration, resolution, fps, frame-count, file-size, bitrate |
+| **Frame Analysis** | average brightness, motion score, stability rating |
+| **Scene Detection** | automatic scene cuts, average scene length, complexity rating |
+| **Thumbnails** | 5 key-frames (10 %, 25 %, 50 %, 75 %, 90 %) ready for CDN |
+| **Quality Metrics** | visual quality, compression efficiency, stability index |
 
-📁 Project Structure
----------------------
-The project is organized into the following folders:
-* `app`: Contains the main application code, including the FastAPI backend and frontend HTML/CSS/JavaScript files.
-* `models`: Houses the machine learning models used for video analysis, including object detection, facial recognition, and sentiment analysis.
-* `utils`: Provides utility functions for tasks such as data preprocessing, video processing, and API integration.
-* `tests`: Contains unit tests and integration tests for the application.
-* `docs`: Holds documentation files, including this README and API reference.
-* `data`: Stores sample video data and analysis results for testing and demonstration purposes.
+---
 
-⚙️ How to Run
----------------
-To set up and run VideoLens Pro, follow these steps:
-1. **Setup**: Clone the repository and navigate to the project directory.
-2. **Environment**: Create a virtual environment using `python -m venv venv` and activate it using `source venv/bin/activate` (on Linux/macOS) or `venv\Scripts\activate` (on Windows).
-3. **Dependencies**: Install the required dependencies using `pip install -r requirements.txt`.
-4. **Build**: Build the frontend using `npm install` and `npm run build` (if using a JavaScript frontend).
-5. **Deploy**: Run the backend using `uvicorn main:app --host 0.0.0.0 --port 8000`.
-6. **Access**: Access the application by navigating to `http://localhost:8000` in your web browser.
+## 🚀 30-second start
+```bash
+# 1. clone repo (or just copy the two files)
+git clone https://github.com/yourname/videolens-pro.git
+cd videolens-pro
 
-🧪 Testing Instructions
-------------------------
-To test VideoLens Pro, follow these steps:
-1. **Unit Tests**: Run unit tests using `pytest tests/unit`.
-2. **Integration Tests**: Run integration tests using `pytest tests/integration`.
-3. **Functional Testing**: Test the application manually by uploading videos, configuring analysis settings, and visualizing the results.
+# 2. install deps
+pip install fastapi uvicorn opencv-python moviepy aiofiles
 
-📸 Screenshots
----------------
-Unfortunately, we cannot provide actual screenshots in this README. However, here are some placeholder images:
-* ![Video Upload Screenshot](https://via.placeholder.com/400x300)
-* ![Analysis Settings Screenshot](https://via.placeholder.com/400x300)
-* ![Results Visualization Screenshot](https://via.placeholder.com/400x300)
+# 3. run backend
+python main.py
+# → API now on http://localhost:8000
 
-📦 API Reference
-----------------
-The VideoLens Pro API is documented using Swagger/OpenAPI. You can access the API documentation by navigating to `http://localhost:8000/docs` in your web browser.
+# 4. open frontend
+# just double-click `index.html` or serve it via any static server
+```
+Visit [http://localhost:8000](http://localhost:8000) – the interactive docs (Swagger) are live.
 
-👤 Author
----------
-VideoLens Pro was created by [Your Name](https://github.com/your-username), a passionate developer and researcher in the field of AI-driven video analysis.
+---
 
-📝 License
----------
-VideoLens Pro is licensed under the [MIT License](https://opensource.org/licenses/MIT). You are free to use, modify, and distribute the software, provided you include the copyright notice and license terms in your distribution.
+## 🔌 API cheat-sheet
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/upload-video` | multipart upload, returns `job_id` |
+| `GET`  | `/job-status/{job_id}` | progress & status |
+| `GET`  | `/results/{job_id}` | full JSON results |
+| `GET`  | `/download-results/{job_id}` | download JSON file |
+| `GET`  | `/thumbnail/{filename}` | serve generated thumbnail |
+| `GET`  | `/jobs` | list all active jobs |
+| `DELETE`| `/job/{job_id}` | purge job + files |
+
+---
+
+## 📁 Project layout
+```
+videolens-pro/
+├── main.py          # FastAPI backend (self-contained)
+├── index.html       # drop-dead gorgeous frontend (no build step)
+├── uploads/         # temp video storage (auto-created)
+├── results/         # JSON + thumbnails (auto-created)
+└── temp/            # scratch workspace (auto-created)
+```
+Everything is cleaned up when you call `DELETE /job/{job_id}`.
+
+---
+
+## 🎨 Frontend highlights
+* 100 % vanilla ES6 – no frameworks, no npm install  
+* Progressive-web-app ready (responsive, offline-capable shell)  
+* Drag-&-drop + click-to-browse  
+* Live progress bar with emoji flair  
+* Auto-scrolls to results when ready  
+* Keyboard shortcut: `Ctrl + U` to open file picker  
+
+---
+
+## 🛠️ Customising the pipeline
+Open `main.py` → class `VideoPipeline`.  
+Each `step_*` method is `async` and self-contained; add your own:
+
+```python
+async def step_6_face_detection(self):
+    await self.update_status("face_detection", 85, "Detecting faces…")
+    # your logic here
+    self.results["faces"] = face_data
+```
+
+Restart the server – new step appears automatically in the progress bar.
+
+---
+
+## 🐳 Docker one-liner
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY main.py .
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+Build & run:  
+```bash
+docker build -t videolens-pro .
+docker run -p 8000:8000 -v $(pwd)/results:/app/results videolens-pro
+```
+
+---
+
+## 🔒 Production checklist
+* Replace in-memory `job_status` dict with Redis or PostgreSQL  
+* Set `allow_origins` to your real domain instead of `["*"]`  
+* Run behind HTTPS (Traefik, Caddy, Nginx)  
+* Add auth middleware if you expose the API publicly  
+* Increase payload limit in FastAPI if you need > 500 MB  
+* Use a GPU-enabled OpenCV build for 10× speed-up
+
+---
+
+## 📄 Sample output snippet
+```json
+{
+  "basic_info": {
+    "duration_seconds": 127.6,
+    "resolution": { "width": 1920, "height": 1080 },
+    "fps": 30.0,
+    "frame_count": 3828,
+    "file_size_mb": 42.3,
+    "bitrate_kbps": 2789
+  },
+  "scene_detection": {
+    "total_scenes": 14,
+    "average_scene_duration": 9.1,
+    "scenes": [ … ]
+  },
+  "thumbnails": [
+    {
+      "filename": "a1b2c3d4_thumb_0.jpg",
+      "timestamp": 12.7,
+      "frame_number": 382
+    }
+  ]
+}
+```
+
+---
+
+## 📄 License
+MIT – do whatever you want, just don’t blame us.
+
+---
+
+## 🙋‍♂️ Contributing
+PRs welcome!  
+Road-map: audio analysis, OCR on frames, object detection, GPU acceleration.
+
+---
+
+**Star ⭐ if this saved you a day of coding.**  
+Made with ❤️ by the community, for the community.
+```
