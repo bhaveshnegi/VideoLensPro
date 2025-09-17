@@ -1,4 +1,3 @@
-```markdown
 # 🎬 VideoLens Pro – AI-Powered Video Analysis Pipeline
 
 > Drop a video, get instant Hollywood-grade insights.  
@@ -26,7 +25,7 @@
 ---
 
 ## 🚀 30-second start
-```bash
+bash
 # 1. clone repo (or just copy the two files)
 git clone https://github.com/yourname/videolens-pro.git
 cd videolens-pro
@@ -40,7 +39,7 @@ python main.py
 
 # 4. open frontend
 # just double-click `index.html` or serve it via any static server
-```
+
 Visit [http://localhost:8000](http://localhost:8000) – the interactive docs (Swagger) are live.
 
 ---
