@@ -25,7 +25,7 @@ app = FastAPI(title="Video Analysis Pipeline API", version="1.0.0")
 # Enable CORS for frontend integration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure this properly in production
+    allow_origins=["https://video-lens-pro.vercel.app"],  # Configure this properly in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
