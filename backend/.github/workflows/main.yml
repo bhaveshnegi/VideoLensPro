@@ -1,0 +1,63 @@
+# name: Deploy Video Service Production
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     permissions:
+#       id-token: write
+#       contents: read
+
+#     steps:
+#       - uses: actions/checkout@v4
+
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           role-to-assume: arn:aws:iam::913212790943:role/github-actions-ecr
+#           aws-region: ap-south-1
+
+#       - name: Login to Amazon ECR
+#         uses: aws-actions/amazon-ecr-login@v2
+
+#       - name: Build and Push Video Image
+#         run: |
+#           VERSION="v-$(date +'%Y%m%d%H%M%S')"
+#           echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+#           docker build -t video-analysis-backend:${VERSION} .
+#           docker tag video-analysis-backend:${VERSION} 913212790943.dkr.ecr.ap-south-1.amazonaws.com/video-analysis-backend:${VERSION}
+#           docker push 913212790943.dkr.ecr.ap-south-1.amazonaws.com/video-analysis-backend:${VERSION}
+
+#       - name: Deploy on EC2
+#         run: |
+#           mkdir -p ~/.ssh
+#           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+#           chmod 600 ~/.ssh/id_rsa
+          
+#           ssh -o StrictHostKeyChecking=no deploy@${{ secrets.EC2_HOST_MAIN }} << 'EOF'
+#           set -e
+
+#           # Login to ECR on EC2 (ECR tokens expire every 12 hours)
+#           aws ecr get-login-password --region ap-south-1 \
+#             | docker login --username AWS --password-stdin 913212790943.dkr.ecr.ap-south-1.amazonaws.com
+
+#           cd videolenspro/
+
+#           # sed -i 's|image: .*video-analysis-backend:.*|image: 913212790943.dkr.ecr.ap-south-1.amazonaws.com/video-analysis-backend:${{ env.VERSION }}|' docker-compose.yml
+
+#           grep -v "^VIDEO_VERSION=" .env > .env.tmp || true
+#           echo "VIDEO_VERSION=${{ env.VERSION }}" >> .env.tmp
+#           mv .env.tmp .env
+
+#           # Pull updated images
+#           docker-compose pull
+
+#           # Restart services
+#           docker-compose up -d
+
+#           EOF

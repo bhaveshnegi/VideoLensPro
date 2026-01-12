@@ -1,0 +1,10 @@
+# Violent words list
+# Add one word per line
+kill
+murder
+violence
+attack
+weapon
+gun
+knife
+bomb

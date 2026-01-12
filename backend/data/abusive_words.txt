@@ -1,0 +1,9 @@
+# Abusive words list
+# Add one word per line
+badword
+offensive
+inappropriate
+damn
+hell
+stupid
+idiot
