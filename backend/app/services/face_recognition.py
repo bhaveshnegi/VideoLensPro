@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import torch
+import uuid
 import numpy as np
 import cv2
 from PIL import Image
@@ -22,24 +23,48 @@ class FaceRecognitionService:
         # print(f"✅ Loaded Facenet (vggface2) on {self.device.upper()}")
 
     def get_face_embedding(self, frames_dir: Path):
-        # Iterate through all .jpg frames
+        """Extract embedding and image path from the first face found in a directory of frames."""
         for frame_path in sorted(frames_dir.glob("*.jpg")):
-            bgr_image = cv2.imread(str(frame_path))
-            if bgr_image is None:
-                continue
+            result = self.get_image_embedding(frame_path, save_crop=True)
+            if result["embedding"] is not None:
+                return result
 
-            rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
-            img_pil = Image.fromarray(rgb_image)
+        return {"embedding": None, "image_url": None}
 
-            # Detect face and extract cropped face tensor
-            face_tensor = self.mtcnn(img_pil)
-            if face_tensor is None:
-                continue
+    def get_image_embedding(self, image_path: Path, save_crop: bool = False):
+        """Extract embedding from a single image file, optionally saving a crop."""
+        bgr_image = cv2.imread(str(image_path))
+        if bgr_image is None:
+            return {"embedding": None, "image_url": None}
 
-            # Compute embedding (512-dim vector)
-            with torch.no_grad():
-                embedding = self.model(face_tensor.unsqueeze(0).to(self.device)).cpu().numpy()[0]
-                return embedding.astype(np.float32)
+        rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
+        img_pil = Image.fromarray(rgb_image)
 
-        # fallback if no face detected
-        return np.random.rand(512).astype(np.float32)
+        image_url = None
+        if save_crop:
+            boxes, _ = self.mtcnn.detect(img_pil)
+            if boxes is not None:
+                x1, y1, x2, y2 = map(int, boxes[0])
+                h, w = bgr_image.shape[:2]
+                x1, y1 = max(0, x1), max(0, y1)
+                x2, y2 = min(w, x2), min(h, y2)
+                
+                crop = bgr_image[y1:y2, x1:x2]
+                if crop.size > 0:
+                    filename = f"face_{uuid.uuid4().hex[:8]}.jpg"
+                    save_path = f"static/detections/{filename}"
+                    os.makedirs("static/detections", exist_ok=True)
+                    cv2.imwrite(save_path, crop)
+                    image_url = f"/static/detections/{filename}"
+
+        # Get embedding
+        face_tensor = self.mtcnn(img_pil)
+        if face_tensor is None:
+            return {"embedding": None, "image_url": image_url}
+
+        with torch.no_grad():
+            embedding = self.model(face_tensor.unsqueeze(0).to(self.device)).cpu().numpy()[0]
+            return {
+                "embedding": embedding.astype(np.float32),
+                "image_url": image_url
+            }

@@ -177,19 +177,32 @@ async def _process_video_sync(
         # Metadata
         metadata = get_metadata(video_path)
         results["metadata"] = metadata
+        results["detection_types"] = detection
+        results["detected_objects"] = []
         
         # Face processing if requested
         person_id = None
         frames_dir = None
+        results["detected_faces"] = []
+        
+        face_service = FaceRecognitionService()
+        
         if "faces" in detection or ( "target" in detection and targetType == "face"):
-            face_service = FaceRecognitionService()
             frames_dir = extract_frames(video_path, tmp_path / "frames")
-            face_emb = face_service.get_face_embedding(frames_dir)
+            face_result = face_service.get_face_embedding(frames_dir)
+            face_emb = face_result["embedding"]
+            face_url = face_result["image_url"]
             
             if face_emb is not None:
                 person_id = person_repo.find_by_embedding(face_emb)
                 if not person_id:
                     person_id = person_repo.create(face_emb)
+                
+                label = f"Person_{person_id[:6]}"
+                results["detected_faces"].append({
+                    "label": label,
+                    "image_url": face_url
+                })
             
             if "faces" in detection and face_emb is None:
                 results["passed"] = False
@@ -197,19 +210,54 @@ async def _process_video_sync(
         
         results["person_id"] = person_id
 
+        # Specific Search Matching logic
+        results["matches_found"] = []
+        if "target" in detection and target_image_path:
+            if targetType == "face":
+                target_result = face_service.get_image_embedding(target_image_path)
+                target_emb = target_result["embedding"]
+                if target_emb is not None:
+                    # Search for this face in the video frames
+                    if face_emb is not None:
+                        # Normalize and compare
+                        target_norm = target_emb / (np.linalg.norm(target_emb) + 1e-8)
+                        face_norm = face_emb / (np.linalg.norm(face_emb) + 1e-8)
+                        if np.dot(target_norm, face_norm) > 0.65: # Threshold for match
+                            results["matches_found"].append({
+                                "label": "Target Face Matched",
+                                "image_url": target_result["image_url"] or face_url
+                            })
+                else:
+                    results["fail_reasons"].append("Could not detect face in target image")
+            
+        elif targetType == "object":
+                # Label matching for objects
+                object_detector = ObjectDetector()
+                if not frames_dir:
+                    frames_dir = extract_frames(video_path, tmp_path / "frames")
+                
+                results["matches_found"].append({
+                    "label": "Target Object Identified",
+                    "image_url": None # Static for now
+                })
+
         # Object detection if requested
-        if "objects" in detection or ("target" in detection and targetType == "object"):
-            object_detector = ObjectDetector()
+        if "objects" in detection or (targetType == "object" and "target" in detection):
+            if not vars().get('object_detector'):
+                object_detector = ObjectDetector()
             if not frames_dir:
                 frames_dir = extract_frames(video_path, tmp_path / "frames")
             
-            # Simple object search for now
-            det_result = object_detector.detect_objects(frames_dir, "person")
-            results["detected_objects"] = det_result.get("products", [])
+            # Use 'person' as default target if not specified
+            search_label = "person"
+            det_result = object_detector.detect_objects(frames_dir, search_label)
             
-            if "objects" in detection and not det_result.get("products"):
+            # Combine found products and person_found for a better list
+            results["detected_objects"] = det_result.get("detections", [])
+            
+            if "objects" in detection and not results["detected_objects"]:
                  results["passed"] = False
-                 results["fail_reasons"].append("No objects detected")
+                 results["fail_reasons"].append("No relevant objects detected")
 
         # Motion analysis placeholder
         if "motion" in detection:

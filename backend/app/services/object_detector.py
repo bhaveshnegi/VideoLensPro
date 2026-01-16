@@ -1,5 +1,8 @@
 from pathlib import Path
 from ultralytics import YOLO
+import cv2
+import uuid
+import os
 
 class ObjectDetector:
     def __init__(self):
@@ -24,26 +27,47 @@ class ObjectDetector:
 
         person_found = False
         product_found = False
-        detected_products = []
+        detections = []
+        labels_saved = set()
 
-        for frame in sorted(frames_dir.glob("*.jpg")):
-            results = self.model.predict(frame, imgsz=416, conf=0.25, verbose=False)[0]
+        for frame_path in sorted(frames_dir.glob("*.jpg")):
+            results = self.model.predict(str(frame_path), imgsz=416, conf=0.25, verbose=False)[0]
+            
+            frame_img = None
 
             for box in results.boxes:
                 label = results.names[int(box.cls)].lower()
-
-                if label == "person":
+                
+                is_person = label == "person"
+                is_expected = label in expected_labels
+                
+                if is_person:
                     person_found = True
-
-                if label in expected_labels:
+                if is_expected:
                     product_found = True
-                    if label not in detected_products:
-                        detected_products.append(label)
+
+                if (is_person or is_expected) and label not in labels_saved:
+                    if frame_img is None:
+                        frame_img = cv2.imread(str(frame_path))
+                    
+                    if frame_img is not None:
+                        x1, y1, x2, y2 = map(int, box.xyxy[0])
+                        crop = frame_img[y1:y2, x1:x2]
+                        if crop.size > 0:
+                            filename = f"obj_{uuid.uuid4().hex[:8]}_{label}.jpg"
+                            save_path = f"static/detections/{filename}"
+                            os.makedirs("static/detections", exist_ok=True)
+                            cv2.imwrite(save_path, crop)
+                            detections.append({
+                                "label": label.capitalize(),
+                                "image_url": f"/static/detections/{filename}"
+                            })
+                            labels_saved.add(label)
 
         return {
             "person_found": person_found,
             "product_found": product_found,
-            "products": detected_products,
+            "detections": detections,
             "expected_labels": expected_labels
         }
 

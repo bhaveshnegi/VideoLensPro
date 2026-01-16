@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 import time
 import uuid
 
@@ -123,6 +124,10 @@ async def add_request_id(request: Request, call_next):
 
 # Routers
 app.include_router(api_router, prefix="/api/v1")
+
+# Static files for detections
+os.makedirs("static/detections", exist_ok=True)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 async def root():
