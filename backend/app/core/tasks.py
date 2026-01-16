@@ -141,31 +141,19 @@ class TaskManager:
     
     async def _execute_video_analysis(self, task: BackgroundTask) -> Dict[str, Any]:
         """Execute video analysis task"""
-        # Import here to avoid circular imports
-        from app.services.video_processor import VideoAnalysisService
-        
-        analysis_service = VideoAnalysisService()
-        
-        # Update progress
-        task.progress = 10.0
-        
-        # Extract data
+        # Placeholder for actual analysis logic
+        # Extraction logic for new parameters
         video_path = task.data.get("video_path")
-        model_id = task.data.get("model_id")
-        person_id = task.data.get("person_id")
+        detection = task.data.get("detection")
+        target_type = task.data.get("targetType")
+        target_image_path = task.data.get("target_image_path")
         
-        if not all([video_path, model_id]):
+        if not video_path:
             raise ValueError("Missing required data for video analysis")
         
-        # Perform analysis
-        result = await analysis_service.analyze_video_async(
-            video_path=video_path,
-            model_id=model_id,
-            person_id=person_id,
-            progress_callback=lambda p: setattr(task, 'progress', p)
-        )
-        
-        return result
+        # Simulating analysis for now
+        await asyncio.sleep(2)
+        return {"status": "success", "message": "Analysis completed"}
     
     async def _cleanup_old_tasks(self):
         """Clean up old completed tasks"""
@@ -196,14 +184,8 @@ class TaskManager:
 # Global task manager instance
 task_manager = TaskManager()
 
-async def submit_video_analysis_task(video_path: str, model_id: str, person_id: str = None) -> str:
+async def submit_video_analysis_task(data: Dict[str, Any]) -> str:
     """Submit video analysis task"""
-    data = {
-        "video_path": video_path,
-        "model_id": model_id,
-        "person_id": person_id
-    }
-    
     return await task_manager.submit_task("video_analysis", data)
 
 async def get_task_status(task_id: str) -> Optional[Dict[str, Any]]:

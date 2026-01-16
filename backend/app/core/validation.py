@@ -61,61 +61,6 @@ class FileValidator:
         
         return True, "Valid filename"
 
-class ModelValidator:
-    """Model ID validation utilities"""
-    
-    @staticmethod
-    def validate_model_id(model_id: str) -> Tuple[bool, str]:
-        """Validate model ID format"""
-        if not model_id:
-            return False, "Model ID cannot be empty"
-        
-        if len(model_id) > 100:
-            return False, "Model ID too long (max 100 characters)"
-        
-        if len(model_id) < 3:
-            return False, "Model ID too short (min 3 characters)"
-        
-        # Allow alphanumeric, hyphens, underscores, dots
-        allowed_chars = set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.')
-        if not all(c in allowed_chars for c in model_id):
-            return False, "Model ID contains invalid characters. Only alphanumeric, hyphens, underscores, and dots allowed"
-        
-        # Check for reserved words
-        reserved_words = {'admin', 'api', 'system', 'root', 'test', 'null', 'undefined'}
-        if model_id.lower() in reserved_words:
-            return False, f"Model ID '{model_id}' is reserved"
-        
-        return True, "Valid model ID"
-
-class VideoValidator:
-    """Video-specific validation utilities"""
-    
-    @staticmethod
-    def validate_video_metadata(metadata: dict) -> Tuple[bool, str]:
-        """Validate video metadata"""
-        required_fields = ['width', 'height', 'duration_sec']
-        
-        for field in required_fields:
-            if field not in metadata:
-                return False, f"Missing required metadata field: {field}"
-        
-        # Validate dimensions
-        if metadata['width'] <= 0 or metadata['height'] <= 0:
-            return False, "Invalid video dimensions"
-        
-        if metadata['width'] > 7680 or metadata['height'] > 4320:  # 8K max
-            return False, "Video resolution too high (max 8K)"
-        
-        # Validate duration
-        if metadata['duration_sec'] <= 0:
-            return False, "Invalid video duration"
-        
-        if metadata['duration_sec'] > 3600:  # 1 hour max
-            return False, "Video too long (max 1 hour)"
-        
-        return True, "Valid video metadata"
-
 def validate_upload_file(file: UploadFile) -> Tuple[bool, List[str]]:
     """Comprehensive file validation"""
     errors = []
@@ -138,17 +83,7 @@ def validate_upload_file(file: UploadFile) -> Tuple[bool, List[str]]:
     
     return len(errors) == 0, errors
 
-def validate_model_id(model_id: str) -> Tuple[bool, List[str]]:
-    """Comprehensive model ID validation"""
-    errors = []
-    
-    is_valid, error_msg = ModelValidator.validate_model_id(model_id)
-    if not is_valid:
-        errors.append(f"Model ID validation failed: {error_msg}")
-    
-    return len(errors) == 0, errors
-
-def validate_request_data(file: UploadFile, model_id: str) -> Tuple[bool, List[str]]:
+def validate_request_data(file: UploadFile) -> Tuple[bool, List[str]]:
     """Validate complete request data"""
     errors = []
     
@@ -156,11 +91,6 @@ def validate_request_data(file: UploadFile, model_id: str) -> Tuple[bool, List[s
     file_valid, file_errors = validate_upload_file(file)
     if not file_valid:
         errors.extend(file_errors)
-    
-    # Validate model ID
-    model_valid, model_errors = validate_model_id(model_id)
-    if not model_valid:
-        errors.extend(model_errors)
     
     return len(errors) == 0, errors
 
