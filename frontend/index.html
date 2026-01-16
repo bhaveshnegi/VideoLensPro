@@ -4,313 +4,767 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VideoLens Pro - Advanced AI Analysis</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <title>VideoLens Pro - AI Vision Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+        :root {
+            /* Glassmorphism Variables */
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --glass-blur: blur(20px);
 
-body {
-    font-family: 'Outfit', system-ui, sans-serif;
-    background: #f8fafc;
-    color: #111827;
-}
+            /* Color Palette */
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
 
-.container {
-    max-width: 1100px;
-    margin: auto;
-    padding: 2rem;
-}
+            /* Spacing */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 1.5rem;
+            --spacing-lg: 2rem;
+            --spacing-xl: 3rem;
+            --spacing-xxl: 4rem;
 
-.header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
+            /* Border Radius */
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
 
-.header h1 {
-    font-size: 2.5rem;
-    font-weight: 800;
-}
+            /* Transitions */
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-.subtitle {
-    color: #6b7280;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-.main-card, .data-card, .score-card {
-    background: white;
-    border-radius: 16px;
-    padding: 2rem;
-    border: 1px solid #e5e7eb;
-}
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+            min-height: 100vh;
+            color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-.section-title {
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    display: flex;
-    gap: .5rem;
-    align-items: center;
-}
+        @keyframes gradientShift {
 
-.section-title span {
-    background: #2563eb;
-    color: white;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-    font-size: 0.9rem;
-}
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
 
-/* Upload zone */
-.upload-zone {
-    border: 2px dashed #d1d5db;
-    border-radius: 12px;
-    padding: 2rem;
-    text-align: center;
-    cursor: pointer;
-    transition: 0.2s;
-    background: #fafafa;
-}
+            50% {
+                background-position: 100% 50%;
+            }
+        }
 
-.upload-zone:hover {
-    border-color: #2563eb;
-    background: #f0f6ff;
-}
+        /* Animated Background Elements */
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            overflow: hidden;
+        }
 
-.upload-zone h3 {
-    font-weight: 600;
-}
+        .bg-animation::before,
+        .bg-animation::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.3) 0%, transparent 70%);
+            animation: float 25s infinite linear;
+        }
 
-.upload-zone p {
-    font-size: .9rem;
-    color: #6b7280;
-}
+        .bg-animation::before {
+            top: -200px;
+            left: -200px;
+            animation-delay: 0s;
+        }
 
-/* Detection cards */
-.detection-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1rem;
-}
+        .bg-animation::after {
+            bottom: -200px;
+            right: -200px;
+            animation-delay: 12s;
+            background: radial-gradient(circle, rgba(240, 147, 251, 0.3) 0%, transparent 70%);
+        }
 
-.detection-option {
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 1rem;
-    cursor: pointer;
-    background: white;
-    transition: .2s;
-    position: relative;
-}
+        @keyframes float {
 
-.detection-option:hover {
-    border-color: #2563eb;
-}
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
 
-.detection-option.selected {
-    border-color: #2563eb;
-    background: #f0f6ff;
-}
+            25% {
+                transform: translate(100px, -100px) scale(1.1);
+            }
 
-.opt-title {
-    font-weight: 600;
-}
+            50% {
+                transform: translate(-50px, 50px) scale(0.9);
+            }
 
-.opt-desc {
-    font-size: .85rem;
-    color: #6b7280;
-}
+            75% {
+                transform: translate(-100px, 100px) scale(1.05);
+            }
+        }
 
-.checkmark {
-    position: absolute;
-    right: 1rem;
-    top: 1rem;
-    background: #2563eb;
-    color: white;
-    font-size: .7rem;
-    border-radius: 999px;
-    width: 20px;
-    height: 20px;
-    display: none;
-    align-items: center;
-    justify-content: center;
-}
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+            position: relative;
+            z-index: 10;
+        }
 
-.detection-option.selected .checkmark {
-    display: flex;
-}
+        /* Header Styles */
+        .header {
+            text-align: center;
+            margin-bottom: var(--spacing-xxl);
+            animation: fadeInUp 0.8s ease-out;
+        }
 
-/* Buttons */
-.btn {
-    border-radius: 10px;
-    padding: 1rem;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-}
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--spacing-sm);
+            letter-spacing: -0.02em;
+        }
 
-.btn-primary {
-    background: #2563eb;
-    color: white;
-}
+        .header .subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto;
+        }
 
-.btn-primary:hover {
-    background: #1e4fd6;
-}
+        /* Glass Card Component */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            box-shadow: var(--glass-shadow);
+            margin-bottom: var(--spacing-lg);
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
 
-.btn-outline {
-    background: white;
-    border: 1px solid #e5e7eb;
-}
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
 
-.btn-outline:hover {
-    background: #f9fafb;
-}
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
 
-/* Results */
-.results-grid {
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 1.5rem;
-}
+        .section-number {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
 
-.score-value {
-    font-size: 4rem;
-    font-weight: 800;
-    color: #2563eb;
-}
+        /* Upload Zone */
+        .upload-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xxl);
+            text-align: center;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+            position: relative;
+            background: rgba(255, 255, 255, 0.02);
+            margin-bottom: var(--spacing-lg);
+        }
 
-.metadata-pill-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-}
+        .upload-zone:hover {
+            border-color: rgba(102, 126, 234, 0.6);
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateY(-2px);
+        }
 
-.metadata-pill {
-    background: #f9fafb;
-    padding: .75rem 1rem;
-    border-radius: 10px;
-    border: 1px solid #e5e7eb;
-}
+        .upload-zone.dragover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            animation: pulse 2s infinite;
+        }
 
-.tag {
-    background: #2563eb;
-    color: white;
-    padding: .4rem .9rem;
-    border-radius: 999px;
-    font-size: .85rem;
-}
+        @keyframes pulse {
 
-.transcript-container {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    padding: 1rem;
-    border-radius: 10px;
-}
+            0%,
+            100% {
+                transform: scale(1);
+            }
 
-.shape {
-    display: none;
-}
+            50% {
+                transform: scale(1.02);
+            }
+        }
 
-@media(max-width: 900px) {
-    .results-grid {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+            display: block;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
+        .upload-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .upload-subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        /* Detection Grid */
+        .detection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .detection-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            position: relative;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .detection-option:hover {
+            transform: translateY(-6px);
+            border-color: rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
+        }
+
+        .detection-option.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.15);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+        }
+
+        .detection-option input {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .detection-icon {
+            font-size: 2rem;
+            margin-bottom: var(--spacing-sm);
+            display: block;
+        }
+
+        .detection-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .detection-desc {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.5;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: var(--spacing-md);
+            right: var(--spacing-md);
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: white;
+            transition: var(--transition-fast);
+            opacity: 0;
+        }
+
+        .detection-option.selected .checkmark {
+            background: var(--success-gradient);
+            opacity: 1;
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+
+            to {
+                transform: scale(1);
+            }
+        }
+
+        /* Target Image Section */
+        #targetImageSection {
+            display: none;
+            animation: slideDown 0.4s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .target-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .target-upload {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            text-align: center;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.02);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .target-upload:hover {
+            border-color: rgba(240, 147, 251, 0.6);
+            background: rgba(240, 147, 251, 0.05);
+        }
+
+        .image-preview-container {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .image-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius-md);
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: none;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: var(--spacing-md) var(--spacing-xl);
+            border-radius: var(--radius-lg);
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            text-transform: none;
+            letter-spacing: normal;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.4);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: white;
+            margin-top: var(--spacing-xl);
+        }
+
+        .btn-outline:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Results Section */
+        #resultsSection {
+            display: none;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: var(--spacing-xl);
+            margin-top: var(--spacing-lg);
+        }
+
+        .score-card {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            text-align: center;
+            box-shadow: var(--glass-shadow);
+            height: fit-content;
+        }
+
+        .score-value {
+            font-size: 5rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .score-label {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .score-status {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .data-card {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            box-shadow: var(--glass-shadow);
+        }
+
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .metadata-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metadata-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .metadata-value {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .detection-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .tag {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Detection Visual Cards */
+        .visual-detection-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            width: 140px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .visual-detection-card:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .visual-detection-card img {
+            width: 100%;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .visual-detection-card .card-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .transcript-container {
+            margin-top: var(--spacing-lg);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .transcript-text {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1rem;
+            line-height: 1.7;
+            font-style: italic;
+            white-space: pre-wrap;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading */
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <div class="shape shape-1"></div>
-    <div class="shape shape-2"></div>
-    <div class="shape shape-3"></div>
-    <div class="shape shape-4"></div>
+    <div class="bg-animation"></div>
 
     <div class="container">
+        <!-- Input Section -->
         <div id="inputSection">
             <header class="header">
-                <h1>AI Vision Studio</h1>
+                <h1>VideoLens Pro</h1>
                 <p class="subtitle">Deploy state-of-the-art computer vision models on your video files in seconds.</p>
             </header>
 
-            <div class="main-card">
+            <div class="glass-card">
                 <!-- Step 1: Video Upload -->
-                <div class="section-title"><span>1</span> Upload Source Video</div>
+                <div class="section-header">
+                    <div class="section-number">1</div>
+                    Upload Source Video
+                </div>
                 <div class="upload-zone" id="videoDropZone" onclick="document.getElementById('fileInput').click()">
-                    <span class="icon">🎬</span>
-                    <h3 id="videoFileName">Click to browse or drag & drop</h3>
-                    <p>Supports MP4, MOV, AVI (Max 500MB)</p>
-                    <input type="file" id="fileInput" accept="video/*">
+                    <i class="fas fa-film upload-icon"></i>
+                    <div class="upload-title" id="videoFileName">Drop your video here or click to browse</div>
+                    <div class="upload-subtitle">Supports MP4, MOV, AVI (Max 500MB)</div>
+                    <input type="file" id="fileInput" accept="video/*" style="display: none;">
                 </div>
 
                 <!-- Step 2: Detection Selection -->
-                <div class="section-title"><span>2</span> Select Analysis Types</div>
+                <div class="section-header">
+                    <div class="section-number">2</div>
+                    Select Analysis Types
+                </div>
                 <div class="detection-grid">
                     <label class="detection-option" data-type="objects">
                         <input type="checkbox" name="detection" value="objects">
-                        <span class="opt-icon">🚗</span>
-                        <span class="opt-title">Object Detection</span>
-                        <span class="opt-desc">Detect cars, people, animals, and 80+ other categories.</span>
-                        <span class="checkmark">✓</span>
+                        <i class="fas fa-car detection-icon"></i>
+                        <span class="detection-title">Object Detection</span>
+                        <span class="detection-desc">Detect cars, people, electronics, and 80+ categories.</span>
+                        <div class="checkmark"><i class="fas fa-check"></i></div>
                     </label>
 
                     <label class="detection-option" data-type="faces">
                         <input type="checkbox" name="detection" value="faces">
-                        <span class="opt-icon">👤</span>
-                        <span class="opt-title">Face Processing</span>
-                        <span class="opt-desc">Identify faces and track them across scenes.</span>
-                        <span class="checkmark">✓</span>
+                        <i class="fas fa-user-circle detection-icon"></i>
+                        <span class="detection-title">Face Processing</span>
+                        <span class="detection-desc">Extract face embeddings and track unique individuals.</span>
+                        <div class="checkmark"><i class="fas fa-check"></i></div>
                     </label>
 
                     <label class="detection-option" data-type="motion">
                         <input type="checkbox" name="detection" value="motion">
-                        <span class="opt-icon">⚡</span>
-                        <span class="opt-title">Motion Analysis</span>
-                        <span class="opt-desc">Detect and highlight areas of significant activity.</span>
-                        <span class="checkmark">✓</span>
+                        <i class="fas fa-bolt detection-icon"></i>
+                        <span class="detection-title">Motion Analysis</span>
+                        <span class="detection-desc">Identify areas of movement and activity triggers.</span>
+                        <div class="checkmark"><i class="fas fa-check"></i></div>
                     </label>
 
                     <label class="detection-option" data-type="target" id="targetToggle">
                         <input type="checkbox" name="detection" value="target">
-                        <span class="opt-icon">🎯</span>
-                        <span class="opt-title">Specific Search</span>
-                        <span class="opt-desc">Find a specific person or object using a sample image.</span>
-                        <span class="checkmark">✓</span>
+                        <i class="fas fa-crosshairs detection-icon"></i>
+                        <span class="detection-title">Specific Search</span>
+                        <span class="detection-desc">Find a specific target using a reference image.</span>
+                        <div class="checkmark"><i class="fas fa-check"></i></div>
                     </label>
                 </div>
 
                 <!-- Step 3: Specific Search Options (Conditional) -->
                 <div id="targetImageSection">
-                    <div class="section-title"><span>3</span> Specific Search Options</div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="section-header">
+                        <div class="section-number">3</div>
+                        Target Search Configuration
+                    </div>
+                    <div class="target-options">
                         <label class="detection-option sub-option" data-sub-type="object">
                             <input type="radio" name="targetType" value="object" checked>
-                            <span class="opt-icon">📦</span>
-                            <span class="opt-title">Object Search</span>
-                            <span class="opt-desc">Search for a specific object.</span>
+                            <i class="fas fa-box detection-icon"></i>
+                            <span class="detection-title">Object Search</span>
+                            <span class="detection-desc">Search for a specific object class.</span>
                         </label>
                         <label class="detection-option sub-option" data-sub-type="face">
                             <input type="radio" name="targetType" value="face">
-                            <span class="opt-icon">👦</span>
-                            <span class="opt-title">Face Search</span>
-                            <span class="opt-desc">Search for a specific person.</span>
+                            <i class="fas fa-user detection-icon"></i>
+                            <span class="detection-title">Face Match</span>
+                            <span class="detection-desc">Find this person in the video.</span>
                         </label>
                     </div>
 
-                    <div class="upload-zone" style="padding: 1.5rem;"
-                        onclick="document.getElementById('imageInput').click()">
-                        <span class="icon">🖼️</span>
-                        <h3 id="imageFileName">Upload sample photo</h3>
-                        <p>JPG or PNG required for target matching</p>
-                        <input type="file" id="imageInput" name="target_image" accept="image/*">
+                    <div class="target-upload" onclick="document.getElementById('imageInput').click()">
+                        <i class="fas fa-image upload-icon"></i>
+                        <div class="upload-title" id="imageFileName">Upload sample photo</div>
+                        <div class="upload-subtitle">JPG/PNG required for target matching</div>
+                        <input type="file" id="imageInput" name="target_image" accept="image/*" style="display: none;">
                     </div>
                     <div class="image-preview-container">
                         <img id="imgPreview" class="image-preview">
@@ -318,53 +772,67 @@ body {
                 </div>
 
                 <!-- Action Button -->
-                <button class="btn btn-primary" id="processBtn" style="margin-top: 1rem;">
-                    🚀 Start Processing
+                <button class="btn btn-primary" id="processBtn" style="margin-top: 2rem;">
+                    <i class="fas fa-rocket"></i> Start Processing
                 </button>
             </div>
         </div>
 
+        <!-- Results Section -->
         <div id="resultsSection">
             <header class="header">
                 <h1>Analysis Complete</h1>
-                <p class="subtitle">Here's what our AI models discovered in your video.</p>
+                <p class="subtitle">AI Insights generated successfully for your media.</p>
             </header>
 
             <div class="results-grid">
                 <div class="score-card">
                     <div class="score-value" id="resScore">0</div>
-                    <div class="score-label">Compliance Score</div>
-                    <p style="color: #6b7280; font-size: 0.9rem; margin-top: 1rem;" id="resStatus">Analysis Passed</p>
+                    <div class="score-label">AI Accuracy Score</div>
+                    <div class="score-status" id="resStatus"
+                        style="color: #43e97b; font-weight: 700; margin-top: 1rem;">
+                        <i class="fas fa-check-circle"></i> Analysis Passed
+                    </div>
                 </div>
 
                 <div class="data-card">
-                    <div class="metadata-pill-grid">
-                        <div class="metadata-pill">
-                            <span class="pill-label">Duration</span>
-                            <span class="pill-value" id="resDuration">0s</span>
+                    <div class="section-header">
+                        <div class="section-number"><i class="fas fa-info-circle"></i></div>
+                        Video Metadata
+                    </div>
+                    <div class="metadata-grid">
+                        <div class="metadata-item">
+                            <div class="metadata-label">Duration</div>
+                            <div class="metadata-value" id="resDuration">0s</div>
                         </div>
-                        <div class="metadata-pill">
-                            <span class="pill-label">Resolution</span>
-                            <span class="pill-value" id="resResolution">0x0</span>
+                        <div class="metadata-item">
+                            <div class="metadata-label">Resolution</div>
+                            <div class="metadata-value" id="resResolution">0x0</div>
                         </div>
-                        <div class="metadata-pill">
-                            <span class="pill-label">File Type</span>
-                            <span class="pill-value" id="resFileType">N/A</span>
+                        <div class="metadata-item">
+                            <div class="metadata-label">Encoding</div>
+                            <div class="metadata-value" id="resFileType">N/A</div>
                         </div>
                     </div>
 
-                    <div class="section-title"><span>🔍</span> Detections</div>
+                    <div class="section-header" style="margin-top: 2.5rem;">
+                        <div class="section-number"><i class="fas fa-eye"></i></div>
+                        Detection Results
+                    </div>
                     <div class="detection-tags" id="resTags">
-                        <!-- Tags will be injected here -->
+                        <!-- Detection Tags/Cards injected here -->
                     </div>
 
-                    <div class="section-title" style="margin-top: 2rem;"><span>💬</span> Audio Transcript</div>
+                    <div class="section-header" style="margin-top: 2.5rem;">
+                        <div class="section-number"><i class="fas fa-comment-dots"></i></div>
+                        Audio Intelligence
+                    </div>
                     <div class="transcript-container">
-                        <p class="transcript-text" id="resTranscript">No audio transcription available.</p>
+                        <p class="transcript-text" id="resTranscript">Processing audio...</p>
                     </div>
 
                     <button class="btn btn-outline" id="newAnalysisBtn">
-                        🔄 Start New Analysis
+                        <i class="fas fa-sync-alt"></i> Start New Analysis
                     </button>
                 </div>
             </div>
@@ -372,30 +840,29 @@ body {
     </div>
 
     <script>
-        // File selection handling
+        // DOM Elements
         const fileInput = document.getElementById('fileInput');
         const videoDropZone = document.getElementById('videoDropZone');
         const videoFileName = document.getElementById('videoFileName');
-
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                videoFileName.innerText = `✅ Selected: ${e.target.files[0].name}`;
-                videoDropZone.style.borderColor = '#10b981';
-            }
-        });
-
-        // Image target handling
         const imageInput = document.getElementById('imageInput');
         const imageFileName = document.getElementById('imageFileName');
         const imgPreview = document.getElementById('imgPreview');
         const targetToggle = document.getElementById('targetToggle');
         const targetImageSection = document.getElementById('targetImageSection');
+        const processBtn = document.getElementById('processBtn');
+
+        // File Selection Handlers
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                videoFileName.innerHTML = `<i class="fas fa-check" style="color: #43e97b;"></i> ${e.target.files[0].name}`;
+                updateProcessButtonState();
+            }
+        });
 
         imageInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
                 const file = e.target.files[0];
-                imageFileName.innerText = `✅ Target: ${file.name}`;
-
+                imageFileName.innerHTML = `<i class="fas fa-check" style="color: #43e97b;"></i> ${file.name}`;
                 const reader = new FileReader();
                 reader.onload = (re) => {
                     imgPreview.src = re.target.result;
@@ -405,60 +872,35 @@ body {
             }
         });
 
-        // Toggle handling for detection options
+        // Toggle Listeners
         document.querySelectorAll('.detection-option').forEach(opt => {
             const input = opt.querySelector('input');
-
-            // Listen for changes on the input (this is triggered by label clicks automatically)
             input.addEventListener('change', () => {
                 if (input.type === 'radio') {
-                    // Refresh all sub-options for the same radio group
                     document.querySelectorAll(`input[name="${input.name}"]`).forEach(radio => {
                         const parent = radio.closest('.detection-option');
-                        if (radio.checked) {
-                            parent.classList.add('selected');
-                        } else {
-                            parent.classList.remove('selected');
-                        }
+                        radio.checked ? parent.classList.add('selected') : parent.classList.remove('selected');
                     });
                 } else {
-                    // Handle checkbox selection
-                    if (input.checked) {
-                        opt.classList.add('selected');
-                    } else {
-                        opt.classList.remove('selected');
-                    }
+                    input.checked ? opt.classList.add('selected') : opt.classList.remove('selected');
                 }
 
-                // Show target section if "Specific Search" is checked
                 if (input.value === 'target') {
                     targetImageSection.style.display = input.checked ? 'block' : 'none';
                 }
-
                 updateProcessButtonState();
             });
 
-            // Handle clicking the option container (standardizing click behavior)
-            opt.addEventListener('click', (e) => {
-                // If the user clicked the div but not the input itself, 
-                // the label behavior will naturally toggle the input.
-                // We don't need additional logic here if we use the 'change' listener.
-                updateProcessButtonState();
-            });
-
-            // Set initial state
-            if (input.checked) {
-                opt.classList.add('selected');
-            }
+            if (input.checked) opt.classList.add('selected');
         });
 
         function updateProcessButtonState() {
             const selected = document.querySelectorAll('input[name="detection"]:checked');
             const videoLoaded = fileInput.files.length > 0;
-            document.getElementById('processBtn').disabled = !(selected.length > 0 && videoLoaded);
+            processBtn.disabled = !(selected.length > 0 && videoLoaded);
         }
 
-        // Drag and drop for video
+        // Drag & Drop
         ['dragenter', 'dragover'].forEach(name => {
             videoDropZone.addEventListener(name, (e) => {
                 e.preventDefault();
@@ -473,35 +915,29 @@ body {
                 if (name === 'drop') {
                     fileInput.files = e.dataTransfer.files;
                     if (fileInput.files.length > 0) {
-                        videoFileName.innerText = `✅ Selected: ${fileInput.files[0].name}`;
-                        videoDropZone.style.borderColor = '#10b981';
+                        videoFileName.innerHTML = `<i class="fas fa-check" style="color: #43e97b;"></i> ${fileInput.files[0].name}`;
                         updateProcessButtonState();
                     }
                 }
             });
         });
 
-        // Submission handling
-        document.getElementById('processBtn').addEventListener('click', async () => {
-            const btn = document.getElementById('processBtn');
-            const originalText = btn.innerHTML;
-
+        // Analysis Processing
+        processBtn.addEventListener('click', async () => {
+            const originalHTML = processBtn.innerHTML;
             try {
-                btn.disabled = true;
-                btn.innerHTML = '⏳ Processing...';
+                processBtn.disabled = true;
+                processBtn.innerHTML = '<div class="loading-spinner"></div> Analyzing...';
 
                 const formData = new FormData();
                 formData.append('file', fileInput.files[0]);
 
-                const selectedDetections = document.querySelectorAll('input[name="detection"]:checked');
-                selectedDetections.forEach(det => {
+                document.querySelectorAll('input[name="detection"]:checked').forEach(det => {
                     formData.append('detection', det.value);
                 });
 
                 const targetType = document.querySelector('input[name="targetType"]:checked');
-                if (targetType) {
-                    formData.append('targetType', targetType.value);
-                }
+                if (targetType) formData.append('targetType', targetType.value);
 
                 if (imageInput.files.length > 0) {
                     formData.append('target_image', imageInput.files[0]);
@@ -513,20 +949,16 @@ body {
                 });
 
                 const result = await response.json();
-
                 if (response.ok) {
                     showResults(result);
                 } else {
-                    alert('Error: ' + (result.detail?.message || result.error || 'Analysis failed'));
+                    alert('Error: ' + (result.detail?.message || result.error || 'Processing Failed'));
                 }
-
             } catch (err) {
-                console.error(err);
                 alert('Connection error: ' + err.message);
             } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                updateProcessButtonState();
+                processBtn.disabled = false;
+                processBtn.innerHTML = originalHTML;
             }
         });
 
@@ -534,32 +966,24 @@ body {
             const inputSection = document.getElementById('inputSection');
             const resultsSection = document.getElementById('resultsSection');
 
-            // Map Metadata
+            // Metadata Update
             const meta = data.metadata || {};
             document.getElementById('resDuration').innerText = `${Math.round(meta.duration_sec || 0)}s`;
             document.getElementById('resResolution').innerText = `${meta.width || 0}x${meta.height || 0}`;
             document.getElementById('resFileType').innerText = meta.format_name?.split(',')[0].toUpperCase() || 'N/A';
 
-            // Map Tags
+            // Tag Injection
             const tagsContainer = document.getElementById('resTags');
             tagsContainer.innerHTML = '';
 
-            // Add helper for creating tags
             const addTag = (text, gradient, imageUrl) => {
                 if (imageUrl) {
                     const card = document.createElement('div');
-                    card.className = 'detection-card';
-
-                    const img = document.createElement('img');
-                    img.src = `http://localhost:8000${imageUrl}`;
-                    img.alt = text;
-
-                    const label = document.createElement('span');
-                    label.className = 'card-label';
-                    label.innerText = text;
-
-                    card.appendChild(img);
-                    card.appendChild(label);
+                    card.className = 'visual-detection-card';
+                    card.innerHTML = `
+                        <img src="http://localhost:8000${imageUrl}" alt="${text}">
+                        <span class="card-label">${text}</span>
+                    `;
                     tagsContainer.appendChild(card);
                 } else {
                     const tag = document.createElement('span');
@@ -571,42 +995,33 @@ body {
             };
 
             // 1. Requested Analyses
-            const detections = data.detection_types || [];
-            detections.forEach(d => addTag(d.charAt(0).toUpperCase() + d.slice(1)));
+            (data.detection_types || []).forEach(d => addTag(d.toUpperCase(), null));
 
             // 2. Specific Objects
-            if (data.detected_objects && data.detected_objects.length > 0) {
-                data.detected_objects.forEach(obj => addTag(obj.label || obj, 'linear-gradient(135deg, #10b981 0%, #059669 100%)', obj.image_url));
-            }
+            (data.detected_objects || []).forEach(obj =>
+                addTag(obj.label || obj, 'linear-gradient(135deg, #10b981 0%, #059669 100%)', obj.image_url));
 
             // 3. Detected People
-            if (data.detected_faces && data.detected_faces.length > 0) {
-                data.detected_faces.forEach(face => addTag(face.label || face, 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)', face.image_url));
-            }
+            (data.detected_faces || []).forEach(face =>
+                addTag(face.label || face, 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)', face.image_url));
 
             // 4. Matches
-            if (data.matches_found && data.matches_found.length > 0) {
-                data.matches_found.forEach(match => addTag(match.label || match, 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', match.image_url));
-            }
+            (data.matches_found || []).forEach(match =>
+                addTag(match.label || match, 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', match.image_url));
 
-            // Map Transcript
+            // Transcript & Score
             document.getElementById('resTranscript').innerText = data.transcript || "No transcript generated.";
-
-            // Map Status & Score
-            const scoreVal = document.getElementById('resScore');
-            const targetScore = Math.round(data.score || 0);
-            animateValue(scoreVal, 0, targetScore, 1500);
+            animateValue(document.getElementById('resScore'), 0, Math.round(data.score || 0), 1500);
 
             const statusText = document.getElementById('resStatus');
             if (data.passed) {
-                statusText.innerText = "✅ Analysis Complete";
-                statusText.style.color = "#10b981";
+                statusText.innerHTML = '<i class="fas fa-check-circle"></i> Analysis Complete';
+                statusText.style.color = '#43e97b';
             } else {
-                statusText.innerText = `❌ Alert: ${data.fail_reasons?.join(', ') || 'Processing Exception'}`;
-                statusText.style.color = "#ef4444";
+                statusText.innerHTML = `<i class="fas fa-exclamation-circle"></i> Alert: ${data.fail_reasons?.join(', ') || 'Processing Error'}`;
+                statusText.style.color = '#f5576c';
             }
 
-            // Transition
             inputSection.style.display = 'none';
             resultsSection.style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -617,10 +1032,8 @@ body {
             const step = (timestamp) => {
                 if (!startTimestamp) startTimestamp = timestamp;
                 const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                obj.innerHTML = Math.floor(progress * (end - start) + start);
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
+                obj.innerText = Math.floor(progress * (end - start) + start);
+                if (progress < 1) window.requestAnimationFrame(step);
             };
             window.requestAnimationFrame(step);
         }
@@ -629,28 +1042,24 @@ body {
             document.getElementById('resultsSection').style.display = 'none';
             document.getElementById('inputSection').style.display = 'block';
 
-            // Reset form
+            // Reset Form State
             fileInput.value = '';
             imageInput.value = '';
-            videoFileName.innerText = 'Click to browse or drag & drop';
-            videoDropZone.style.borderColor = 'rgba(102, 126, 234, 0.4)';
+            videoFileName.innerText = 'Drop your video here or click to browse';
             imgPreview.style.display = 'none';
             imageFileName.innerText = 'Upload sample photo';
-
             document.querySelectorAll('input[name="detection"]').forEach(i => {
                 i.checked = false;
                 i.closest('.detection-option').classList.remove('selected');
             });
             targetImageSection.style.display = 'none';
-
             updateProcessButtonState();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
-        // Initialize state
+        // Initialize
         updateProcessButtonState();
     </script>
 </body>
 
 </html>
-```
