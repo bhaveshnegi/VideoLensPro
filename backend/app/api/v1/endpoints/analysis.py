@@ -172,109 +172,115 @@ async def _process_video_sync(
     
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
-        results = {"passed": True, "fail_reasons": []}
+        frames_dir = None
+        results = {
+            "passed": True, 
+            "fail_reasons": [],
+            "detection_types": detection,
+            "detected_objects": [],
+            "detected_faces": [],
+            "matches_found": []
+        }
         
         # Metadata
         metadata = get_metadata(video_path)
         results["metadata"] = metadata
-        results["detection_types"] = detection
-        results["detected_objects"] = []
         
-        # Face processing if requested
-        person_id = None
-        frames_dir = None
-        results["detected_faces"] = []
-        
+        # Initialize services
         face_service = FaceRecognitionService()
+        object_detector = ObjectDetector()
         
-        if "faces" in detection or ( "target" in detection and targetType == "face"):
+        # Extract frames only once if needed
+        if any(x in detection for x in ["faces", "objects", "target"]):
             frames_dir = extract_frames(video_path, tmp_path / "frames")
-            face_result = face_service.get_face_embedding(frames_dir)
-            face_emb = face_result["embedding"]
-            face_url = face_result["image_url"]
+
+        # 1. Face Processing
+        unique_faces = []
+        if frames_dir and ("faces" in detection or ( "target" in detection and targetType == "face")):
+            unique_faces = face_service.get_all_unique_faces(frames_dir)
             
-            if face_emb is not None:
-                person_id = person_repo.find_by_embedding(face_emb)
+            # Map detected faces for output
+            for i, face_data in enumerate(unique_faces):
+                emb = face_data["embedding"]
+                person_id = person_repo.find_by_embedding(emb)
                 if not person_id:
-                    person_id = person_repo.create(face_emb)
+                    person_id = person_repo.create(emb)
                 
-                label = f"Person_{person_id[:6]}"
                 results["detected_faces"].append({
-                    "label": label,
-                    "image_url": face_url
+                    "label": f"Person_{person_id[:6]}",
+                    "image_url": face_data["image_url"]
                 })
-            
-            if "faces" in detection and face_emb is None:
+
+            if "faces" in detection and not results["detected_faces"]:
                 results["passed"] = False
                 results["fail_reasons"].append("No person detected for face analysis")
-        
-        results["person_id"] = person_id
 
-        # Specific Search Matching logic
-        results["matches_found"] = []
-        if "target" in detection and target_image_path:
+        # 2. Specific Search / Target Matching
+        if "target" in detection and target_image_path and frames_dir:
             if targetType == "face":
                 target_result = face_service.get_image_embedding(target_image_path)
                 target_emb = target_result["embedding"]
                 if target_emb is not None:
-                    # Search for this face in the video frames
-                    if face_emb is not None:
-                        # Normalize and compare
-                        target_norm = target_emb / (np.linalg.norm(target_emb) + 1e-8)
+                    target_norm = target_emb / (np.linalg.norm(target_emb) + 1e-8)
+                    
+                    found_match = False
+                    for face_data in unique_faces:
+                        face_emb = face_data["embedding"]
                         face_norm = face_emb / (np.linalg.norm(face_emb) + 1e-8)
-                        if np.dot(target_norm, face_norm) > 0.65: # Threshold for match
+                        
+                        if np.dot(target_norm, face_norm) > 0.65:
                             results["matches_found"].append({
-                                "label": "Target Face Matched",
-                                "image_url": target_result["image_url"] or face_url
+                                "label": "Target Person Found",
+                                "image_url": face_data["image_url"]
                             })
+                            found_match = True
+                    
+                    if not found_match:
+                        results["fail_reasons"].append("Target person not found in video")
                 else:
                     results["fail_reasons"].append("Could not detect face in target image")
             
-        elif targetType == "object":
-                # Label matching for objects
-                object_detector = ObjectDetector()
-                if not frames_dir:
-                    frames_dir = extract_frames(video_path, tmp_path / "frames")
+            elif targetType == "object":
+                # For object search, we look for matches from all detected objects
+                # For now, we use label-based matching or if no target_image, we use "person" as default
+                # But here we assume we detect ALL objects and filter
+                det_result = object_detector.detect_objects(frames_dir)
+                all_detections = det_result.get("detections", [])
                 
-                results["matches_found"].append({
-                    "label": "Target Object Identified",
-                    "image_url": None # Static for now
-                })
+                # If we have all detections, we might want to filter by what's in the target image
+                # For simplicity, if target_image is provided, we'd need an object classifier for it.
+                # Let's assume the user just wants to find "Object" in video for now or specific tags.
+                # We'll just show what was found if 'objects' is selected.
+                pass
 
-        # Object detection if requested
-        if "objects" in detection or (targetType == "object" and "target" in detection):
-            if not vars().get('object_detector'):
-                object_detector = ObjectDetector()
-            if not frames_dir:
-                frames_dir = extract_frames(video_path, tmp_path / "frames")
-            
-            # Use 'person' as default target if not specified
-            search_label = "person"
-            det_result = object_detector.detect_objects(frames_dir, search_label)
-            
-            # Combine found products and person_found for a better list
+        # 3. Object Detection (General)
+        if "objects" in detection and frames_dir:
+            det_result = object_detector.detect_objects(frames_dir)
             results["detected_objects"] = det_result.get("detections", [])
             
-            if "objects" in detection and not results["detected_objects"]:
+            if not results["detected_objects"]:
                  results["passed"] = False
                  results["fail_reasons"].append("No relevant objects detected")
 
-        # Motion analysis placeholder
+        # 4. Motion analysis placeholder
         if "motion" in detection:
             results["motion_detected"] = True
 
-        # Transcription
+        # 5. Transcription
         transcription_service = TranscriptionService()
-        audio_path = extract_audio(video_path, tmp_path / "audio.wav")
-        transcript = transcription_service.transcribe(audio_path)
-        results["transcript"] = transcript.get("text", "")
+        try:
+            audio_path = extract_audio(video_path, tmp_path / "audio.wav")
+            transcript = transcription_service.transcribe(audio_path)
+            results["transcript"] = transcript.get("text", "")
+        except Exception as e:
+            logger.warning(f"Transcription failed: {e}")
+            results["transcript"] = ""
 
         # Scoring
-        results["score"] = 100.0
+        results["score"] = 95.0 if results["passed"] else 45.0
         
         # Save upload record
         upload_repo.create({
-            "person_id": person_id,
             "detection_types": detection,
             "score": results["score"],
             "metadata": metadata,

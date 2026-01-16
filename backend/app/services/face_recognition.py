@@ -31,6 +31,37 @@ class FaceRecognitionService:
 
         return {"embedding": None, "image_url": None}
 
+    def get_all_unique_faces(self, frames_dir: Path, threshold: float = 0.6):
+        """Extract all unique faces found in a directory of frames."""
+        unique_faces = []
+        known_embeddings = []
+
+        for frame_path in sorted(frames_dir.glob("*.jpg")):
+            result = self.get_image_embedding(frame_path, save_crop=True)
+            emb = result["embedding"]
+            
+            if emb is not None:
+                is_unique = True
+                # Normalize current embedding
+                emb_norm = emb / (np.linalg.norm(emb) + 1e-8)
+
+                for known_emb in known_embeddings:
+                    # Normalize known embedding
+                    known_norm = known_emb / (np.linalg.norm(known_emb) + 1e-8)
+                    
+                    if np.dot(emb_norm, known_norm) > threshold:
+                        is_unique = False
+                        break
+                
+                if is_unique:
+                    known_embeddings.append(emb)
+                    unique_faces.append({
+                        "embedding": emb,
+                        "image_url": result["image_url"]
+                    })
+
+        return unique_faces
+
     def get_image_embedding(self, image_path: Path, save_crop: bool = False):
         """Extract embedding from a single image file, optionally saving a crop."""
         bgr_image = cv2.imread(str(image_path))

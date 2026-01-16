@@ -21,14 +21,15 @@ class ObjectDetector:
             "camera": ["camera"]
         }
     
-    def detect_objects(self, frames_dir: Path, product_name: str):
-        product_name_lower = product_name.lower()
-        expected_labels = self._get_expected_labels(product_name_lower)
-
-        person_found = False
-        product_found = False
+    def detect_objects(self, frames_dir: Path, target_label: str = None):
+        """
+        Detect objects in frames. 
+        If target_label is provides, focuses on that. 
+        Otherwise detects all classes.
+        """
         detections = []
         labels_saved = set()
+        person_found = False
 
         for frame_path in sorted(frames_dir.glob("*.jpg")):
             results = self.model.predict(str(frame_path), imgsz=416, conf=0.25, verbose=False)[0]
@@ -38,20 +39,30 @@ class ObjectDetector:
             for box in results.boxes:
                 label = results.names[int(box.cls)].lower()
                 
-                is_person = label == "person"
-                is_expected = label in expected_labels
-                
-                if is_person:
+                if label == "person":
                     person_found = True
-                if is_expected:
-                    product_found = True
+                
+                # If target_label is specified, only save that. 
+                # Otherwise save all unique labels encountered.
+                should_save = False
+                if target_label:
+                    if label == target_label or (target_label in self.product_map and label in self.product_map[target_label]):
+                        should_save = label not in labels_saved
+                else:
+                    should_save = label not in labels_saved
 
-                if (is_person or is_expected) and label not in labels_saved:
+                if should_save:
                     if frame_img is None:
                         frame_img = cv2.imread(str(frame_path))
                     
                     if frame_img is not None:
                         x1, y1, x2, y2 = map(int, box.xyxy[0])
+                        # Add padding
+                        h, w = frame_img.shape[:2]
+                        pad = 10
+                        x1, y1 = max(0, x1-pad), max(0, y1-pad)
+                        x2, y2 = min(w, x2+pad), min(h, y2+pad)
+
                         crop = frame_img[y1:y2, x1:x2]
                         if crop.size > 0:
                             filename = f"obj_{uuid.uuid4().hex[:8]}_{label}.jpg"
@@ -66,9 +77,7 @@ class ObjectDetector:
 
         return {
             "person_found": person_found,
-            "product_found": product_found,
-            "detections": detections,
-            "expected_labels": expected_labels
+            "detections": detections
         }
 
     def _get_expected_labels(self, product_name_lower: str):
