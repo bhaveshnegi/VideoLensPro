@@ -13,7 +13,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Security configuration
-SERVICE_API_KEY = os.getenv("VIDEO_ANALYZER_API_KEY")
 RATE_LIMIT_WINDOW = int(os.getenv("RATE_LIMIT_WINDOW", "60"))  # seconds
 RATE_LIMIT_MAX_REQUESTS = int(os.getenv("RATE_LIMIT_MAX_REQUESTS", "100"))
 MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE_MB", "500")) * 1024 * 1024  # bytes
@@ -28,15 +27,8 @@ class SecurityError(Exception):
     pass
 
 def verify_api_key(api_key: str) -> bool:
-    """Verify API key"""
-    if not SERVICE_API_KEY:
-        logger.warning("SERVICE_API_KEY not configured - security disabled")
-        return True
-    
-    if not api_key:
-        return False
-    
-    return hmac.compare_digest(api_key, SERVICE_API_KEY)
+    """Verify API key - Always returns True as verification is disabled"""
+    return True
 
 def check_rate_limit(client_ip: str) -> bool:
     """Check if client has exceeded rate limit"""
@@ -83,7 +75,7 @@ async def verify_service_access(
     authorization: Optional[HTTPAuthorizationCredentials] = Depends(security_scheme),
     x_api_key: Optional[str] = Header(None)
 ) -> bool:
-    """Verify service access through API key or Bearer token"""
+    """Verify service access - Security disabled as requested"""
     client_ip = request.client.host
     
     # Check rate limiting
@@ -94,38 +86,8 @@ async def verify_service_access(
             detail="Rate limit exceeded. Please try again later."
         )
     
-    # Check API key (preferred for service-to-service)
-    if x_api_key:
-        if verify_api_key(x_api_key):
-            logger.info(f"API key authentication successful for IP: {client_ip}")
-            return True
-        else:
-            logger.warning(f"Invalid API key from IP: {client_ip}")
-            raise HTTPException(
-                status_code=401,
-                detail="Unauthorized: Invalid API key"
-            )
-    
-    # Check Bearer token (for API Gateway integration)
-    if authorization:
-        # In production, validate JWT token here
-        # For now, just check if token exists
-        if authorization.credentials:
-            logger.info(f"Bearer token authentication successful for IP: {client_ip}")
-            return True
-        else:
-            logger.warning(f"Invalid Bearer token from IP: {client_ip}")
-            raise HTTPException(
-                status_code=401,
-                detail="Unauthorized: Invalid token"
-            )
-    
-    # No authentication provided
-    logger.warning(f"No authentication provided from IP: {client_ip}")
-    raise HTTPException(
-        status_code=401,
-        detail="Unauthorized: API key or Bearer token required"
-    )
+    # Verification disabled
+    return True
 
 def get_client_info(request: Request) -> dict:
     """Extract client information for logging"""

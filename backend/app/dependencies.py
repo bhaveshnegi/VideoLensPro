@@ -48,10 +48,10 @@ async def get_mongo_client() -> MongoClient:
     return _mongo_client
 
 async def get_database():
-    """Get database instance"""
+    """Get database instance from connection URL"""
     try:
         client = await get_mongo_client()
-        return client[settings.MONGODB_DB_NAME]
+        return client.get_database()
     except Exception as e:
         log_error(logger, e, context={"operation": "get_database"})
         raise DatabaseError(f"Failed to get database: {str(e)}")
@@ -61,7 +61,7 @@ async def get_database():
 async def get_database_session():
     """Context manager for database operations with error handling"""
     try:
-        db = get_database()
+        db = await get_database()
         yield db
     except Exception as e:
         log_error(logger, e, context={"operation": "database_session"})
@@ -73,7 +73,8 @@ async def health_check_database() -> dict:
         client = await get_mongo_client()
         
         # Test basic operations
-        db = client[settings.MONGODB_DB_NAME]
+        db = client.get_database()
+        db_name = db.name
         
         # Ping test
         ping_result = client.admin.command('ping')
@@ -96,7 +97,7 @@ async def health_check_database() -> dict:
             "ping": ping_result.get('ok') == 1,
             "write_test": insert_result.acknowledged,
             "read_test": found_doc is not None,
-            "database": settings.MONGODB_DB_NAME,
+            "database": db_name,
             "connection_pool_size": client.max_pool_size
         }
         
@@ -104,8 +105,7 @@ async def health_check_database() -> dict:
         log_error(logger, e, context={"operation": "database_health_check"})
         return {
             "status": "unhealthy",
-            "error": str(e),
-            "database": settings.MONGODB_DB_NAME
+            "error": str(e)
         }
 
 async def close_database_connections():

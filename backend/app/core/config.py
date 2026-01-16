@@ -19,14 +19,12 @@ class Settings(BaseSettings):
     WORKERS: int = Field(default=1, env="WORKERS")
     
     # Security
-    VIDEO_ANALYZER_API_KEY: Optional[str] = Field(default=None, env="VIDEO_ANALYZER_API_KEY")
     RATE_LIMIT_WINDOW: int = Field(default=60, env="RATE_LIMIT_WINDOW")
     RATE_LIMIT_MAX_REQUESTS: int = Field(default=100, env="RATE_LIMIT_MAX_REQUESTS")
-    MAX_FILE_SIZE_MB: int = Field(default=500, env="MAX_FILE_SIZE_MB")
+    MAX_FILE_SIZE_MB: int = Field(default=50, env="MAX_FILE_SIZE_MB")
     
     # MongoDB
     MONGODB_URL: str = Field(default="mongodb://localhost:27017", env="MONGODB_URL")
-    MONGODB_DB_NAME: str = Field(default="Nexback", env="MONGODB_DB_NAME")
     MONGODB_MAX_POOL_SIZE: int = Field(default=10, env="MONGODB_MAX_POOL_SIZE")
     MONGODB_TIMEOUT_MS: int = Field(default=5000, env="MONGODB_TIMEOUT_MS")
     
