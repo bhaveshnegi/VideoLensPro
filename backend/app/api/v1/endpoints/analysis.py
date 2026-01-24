@@ -3,6 +3,7 @@ import shutil
 import hashlib
 import time
 import asyncio
+import numpy as np
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from fastapi import APIRouter, File, UploadFile, Form, Depends, Request, HTTPException
@@ -123,13 +124,13 @@ async def analyze_video(
             record_video_processing_metrics(
                 duration_ms=processing_time_ms,
                 file_size_mb=file_size_mb,
-                success=result.get("passed", False)
+                success=True  # Always successful if we reach here
             )
             
             log_performance(logger, "video_analysis", processing_time_ms, request_id, {
                 "file_size_mb": file_size_mb,
                 "detection": detection,
-                "success": result.get("passed", False)
+                "success": True
             })
             
             result["request_id"] = request_id
@@ -159,6 +160,59 @@ async def analyze_video(
             }
         )
 
+async def _detect_motion(frames_dir: Path, threshold: float = 25.0) -> Dict[str, Any]:
+    """
+    Detect motion in video frames using frame differencing.
+    
+    Args:
+        frames_dir: Directory containing extracted frames
+        threshold: Sensitivity threshold for motion detection (lower = more sensitive)
+    
+    Returns:
+        Dictionary with motion detection results
+    """
+    import cv2
+    
+    frames = sorted(frames_dir.glob("*.jpg"))
+    if len(frames) < 2:
+        return {"detected": False, "regions": []}
+    
+    motion_detected = False
+    motion_regions = []
+    
+    # Sample frames (check every 5th frame for performance)
+    sample_frames = frames[::5]
+    
+    for i in range(len(sample_frames) - 1):
+        frame1 = cv2.imread(str(sample_frames[i]), cv2.IMREAD_GRAYSCALE)
+        frame2 = cv2.imread(str(sample_frames[i + 1]), cv2.IMREAD_GRAYSCALE)
+        
+        if frame1 is None or frame2 is None:
+            continue
+        
+        # Calculate frame difference
+        diff = cv2.absdiff(frame1, frame2)
+        _, thresh = cv2.threshold(diff, threshold, 255, cv2.THRESH_BINARY)
+        
+        # Count non-zero pixels (motion pixels)
+        motion_pixels = cv2.countNonZero(thresh)
+        total_pixels = thresh.shape[0] * thresh.shape[1]
+        motion_percentage = (motion_pixels / total_pixels) * 100
+        
+        # If more than 1% of pixels changed, consider it motion
+        if motion_percentage > 1.0:
+            motion_detected = True
+            motion_regions.append({
+                "frame_index": i * 5,
+                "motion_percentage": round(motion_percentage, 2)
+            })
+    
+    return {
+        "detected": motion_detected,
+        "regions": motion_regions[:10]  # Return max 10 regions to avoid large response
+    }
+
+
 async def _process_video_sync(
     video_path: Path,
     detection: List[str],
@@ -173,13 +227,31 @@ async def _process_video_sync(
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
         frames_dir = None
+        
+        # Initialize new response structure
         results = {
-            "passed": True, 
-            "fail_reasons": [],
-            "detection_types": detection,
-            "detected_objects": [],
-            "detected_faces": [],
-            "matches_found": []
+            "metadata": {},
+            "transcript": "",
+            "analysis_results": {
+                "object_detection": {
+                    "enabled": "objects" in detection,
+                    "detections": []
+                },
+                "face_detection": {
+                    "enabled": "faces" in detection,
+                    "faces": []
+                },
+                "motion_analysis": {
+                    "enabled": "motion" in detection,
+                    "motion_detected": False,
+                    "motion_regions": []
+                },
+                "specific_search": {
+                    "enabled": "target" in detection,
+                    "target_type": targetType if "target" in detection else None,
+                    "matches": []
+                }
+            }
         }
         
         # Metadata
@@ -196,26 +268,35 @@ async def _process_video_sync(
 
         # 1. Face Processing
         unique_faces = []
-        if frames_dir and ("faces" in detection or ( "target" in detection and targetType == "face")):
+        if frames_dir and ("faces" in detection or ("target" in detection and targetType == "face")):
             unique_faces = face_service.get_all_unique_faces(frames_dir)
             
             # Map detected faces for output
-            for i, face_data in enumerate(unique_faces):
-                emb = face_data["embedding"]
-                person_id = person_repo.find_by_embedding(emb)
-                if not person_id:
-                    person_id = person_repo.create(emb)
-                
-                results["detected_faces"].append({
-                    "label": f"Person_{person_id[:6]}",
-                    "image_url": face_data["image_url"]
-                })
+            if "faces" in detection:
+                for i, face_data in enumerate(unique_faces):
+                    emb = face_data["embedding"]
+                    person_id = person_repo.find_by_embedding(emb)
+                    if not person_id:
+                        person_id = person_repo.create(emb)
+                    
+                    results["analysis_results"]["face_detection"]["faces"].append({
+                        "label": f"Person_{person_id[:6]}",
+                        "image_url": face_data["image_url"]
+                    })
 
-            if "faces" in detection and not results["detected_faces"]:
-                results["passed"] = False
-                results["fail_reasons"].append("No person detected for face analysis")
+        # 2. Object Detection (General)
+        if "objects" in detection and frames_dir:
+            det_result = object_detector.detect_objects(frames_dir)
+            results["analysis_results"]["object_detection"]["detections"] = det_result.get("detections", [])
 
-        # 2. Specific Search / Target Matching
+        # 3. Motion Analysis
+        if "motion" in detection and frames_dir:
+            # Implement basic motion detection using frame differencing
+            motion_detected = await _detect_motion(frames_dir)
+            results["analysis_results"]["motion_analysis"]["motion_detected"] = motion_detected["detected"]
+            results["analysis_results"]["motion_analysis"]["motion_regions"] = motion_detected.get("regions", [])
+
+        # 4. Specific Search / Target Matching
         if "target" in detection and target_image_path and frames_dir:
             if targetType == "face":
                 target_result = face_service.get_image_embedding(target_image_path)
@@ -223,48 +304,23 @@ async def _process_video_sync(
                 if target_emb is not None:
                     target_norm = target_emb / (np.linalg.norm(target_emb) + 1e-8)
                     
-                    found_match = False
                     for face_data in unique_faces:
                         face_emb = face_data["embedding"]
                         face_norm = face_emb / (np.linalg.norm(face_emb) + 1e-8)
                         
                         if np.dot(target_norm, face_norm) > 0.65:
-                            results["matches_found"].append({
+                            results["analysis_results"]["specific_search"]["matches"].append({
                                 "label": "Target Person Found",
-                                "image_url": face_data["image_url"]
+                                "image_url": face_data["image_url"],
+                                "confidence": float(np.dot(target_norm, face_norm))
                             })
-                            found_match = True
-                    
-                    if not found_match:
-                        results["fail_reasons"].append("Target person not found in video")
-                else:
-                    results["fail_reasons"].append("Could not detect face in target image")
             
             elif targetType == "object":
-                # For object search, we look for matches from all detected objects
-                # For now, we use label-based matching or if no target_image, we use "person" as default
-                # But here we assume we detect ALL objects and filter
+                # For object search, detect all objects and show them as potential matches
                 det_result = object_detector.detect_objects(frames_dir)
                 all_detections = det_result.get("detections", [])
-                
-                # If we have all detections, we might want to filter by what's in the target image
-                # For simplicity, if target_image is provided, we'd need an object classifier for it.
-                # Let's assume the user just wants to find "Object" in video for now or specific tags.
-                # We'll just show what was found if 'objects' is selected.
-                pass
-
-        # 3. Object Detection (General)
-        if "objects" in detection and frames_dir:
-            det_result = object_detector.detect_objects(frames_dir)
-            results["detected_objects"] = det_result.get("detections", [])
-            
-            if not results["detected_objects"]:
-                 results["passed"] = False
-                 results["fail_reasons"].append("No relevant objects detected")
-
-        # 4. Motion analysis placeholder
-        if "motion" in detection:
-            results["motion_detected"] = True
+                # Store all detected objects as matches for object search
+                results["analysis_results"]["specific_search"]["matches"] = all_detections
 
         # 5. Transcription
         transcription_service = TranscriptionService()
@@ -275,14 +331,10 @@ async def _process_video_sync(
         except Exception as e:
             logger.warning(f"Transcription failed: {e}")
             results["transcript"] = ""
-
-        # Scoring
-        results["score"] = 95.0 if results["passed"] else 45.0
         
-        # Save upload record
+        # Save upload record (simplified without score)
         upload_repo.create({
             "detection_types": detection,
-            "score": results["score"],
             "metadata": metadata,
             "timestamp": time.time()
         })

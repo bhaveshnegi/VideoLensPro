@@ -651,6 +651,53 @@
             }
         }
 
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--success-gradient);
+            border-radius: 100px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 20px rgba(67, 233, 123, 0.5);
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            text-align: center;
+        }
+
         /* Loading */
         .loading-spinner {
             width: 24px;
@@ -785,57 +832,86 @@
                 <p class="subtitle">AI Insights generated successfully for your media.</p>
             </header>
 
-            <div class="results-grid">
-                <div class="score-card">
-                    <div class="score-value" id="resScore">0</div>
-                    <div class="score-label">AI Accuracy Score</div>
-                    <div class="score-status" id="resStatus"
-                        style="color: #43e97b; font-weight: 700; margin-top: 1rem;">
-                        <i class="fas fa-check-circle"></i> Analysis Passed
-                    </div>
+            <!-- Video Metadata Card -->
+            <div class="glass-card">
+                <div class="section-header">
+                    <div class="section-number"><i class="fas fa-info-circle"></i></div>
+                    Video Metadata
                 </div>
-
-                <div class="data-card">
-                    <div class="section-header">
-                        <div class="section-number"><i class="fas fa-info-circle"></i></div>
-                        Video Metadata
+                <div class="metadata-grid">
+                    <div class="metadata-item">
+                        <div class="metadata-label">Duration</div>
+                        <div class="metadata-value" id="resDuration">0s</div>
                     </div>
-                    <div class="metadata-grid">
-                        <div class="metadata-item">
-                            <div class="metadata-label">Duration</div>
-                            <div class="metadata-value" id="resDuration">0s</div>
-                        </div>
-                        <div class="metadata-item">
-                            <div class="metadata-label">Resolution</div>
-                            <div class="metadata-value" id="resResolution">0x0</div>
-                        </div>
-                        <div class="metadata-item">
-                            <div class="metadata-label">Encoding</div>
-                            <div class="metadata-value" id="resFileType">N/A</div>
-                        </div>
+                    <div class="metadata-item">
+                        <div class="metadata-label">Resolution</div>
+                        <div class="metadata-value" id="resResolution">0x0</div>
                     </div>
-
-                    <div class="section-header" style="margin-top: 2.5rem;">
-                        <div class="section-number"><i class="fas fa-eye"></i></div>
-                        Detection Results
+                    <div class="metadata-item">
+                        <div class="metadata-label">Encoding</div>
+                        <div class="metadata-value" id="resFileType">N/A</div>
                     </div>
-                    <div class="detection-tags" id="resTags">
-                        <!-- Detection Tags/Cards injected here -->
-                    </div>
-
-                    <div class="section-header" style="margin-top: 2.5rem;">
-                        <div class="section-number"><i class="fas fa-comment-dots"></i></div>
-                        Audio Intelligence
-                    </div>
-                    <div class="transcript-container">
-                        <p class="transcript-text" id="resTranscript">Processing audio...</p>
-                    </div>
-
-                    <button class="btn btn-outline" id="newAnalysisBtn">
-                        <i class="fas fa-sync-alt"></i> Start New Analysis
-                    </button>
                 </div>
             </div>
+
+            <!-- Object Detection Results -->
+            <div id="objectDetectionSection" class="glass-card" style="display: none;">
+                <div class="section-header">
+                    <div class="section-number"><i class="fas fa-car"></i></div>
+                    Object Detection Results
+                </div>
+                <div class="detection-tags" id="objectDetectionResults">
+                    <!-- Object detection cards injected here -->
+                </div>
+            </div>
+
+            <!-- Face Detection Results -->
+            <div id="faceDetectionSection" class="glass-card" style="display: none;">
+                <div class="section-header">
+                    <div class="section-number"><i class="fas fa-user-circle"></i></div>
+                    Face Detection Results
+                </div>
+                <div class="detection-tags" id="faceDetectionResults">
+                    <!-- Face detection cards injected here -->
+                </div>
+            </div>
+
+            <!-- Motion Analysis Results -->
+            <div id="motionAnalysisSection" class="glass-card" style="display: none;">
+                <div class="section-header">
+                    <div class="section-number"><i class="fas fa-bolt"></i></div>
+                    Motion Analysis Results
+                </div>
+                <div id="motionAnalysisResults">
+                    <!-- Motion analysis content injected here -->
+                </div>
+            </div>
+
+            <!-- Specific Search Results -->
+            <div id="specificSearchSection" class="glass-card" style="display: none;">
+                <div class="section-header">
+                    <div class="section-number"><i class="fas fa-crosshairs"></i></div>
+                    Specific Search Results
+                </div>
+                <div class="detection-tags" id="specificSearchResults">
+                    <!-- Specific search results injected here -->
+                </div>
+            </div>
+
+            <!-- Audio Intelligence -->
+            <div id="transcriptSection" class="glass-card">
+                <div class="section-header">
+                    <div class="section-number"><i class="fas fa-comment-dots"></i></div>
+                    Audio Intelligence
+                </div>
+                <div class="transcript-container">
+                    <p class="transcript-text" id="resTranscript">Processing audio...</p>
+                </div>
+            </div>
+
+            <button class="btn btn-outline" id="newAnalysisBtn">
+                <i class="fas fa-sync-alt"></i> Start New Analysis
+            </button>
         </div>
     </div>
 
@@ -925,9 +1001,42 @@
         // Analysis Processing
         processBtn.addEventListener('click', async () => {
             const originalHTML = processBtn.innerHTML;
+            let progressInterval;
+
             try {
                 processBtn.disabled = true;
-                processBtn.innerHTML = '<div class="loading-spinner"></div> Analyzing...';
+
+                // Create progress bar UI
+                processBtn.innerHTML = `
+                    <div style="width: 100%;">
+                        <div class="progress-container">
+                            <div class="progress-bar" id="analysisProgress" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-text"><span id="progressPercent">0</span>% - Analyzing video...</div>
+                    </div>
+                `;
+
+                // Animate progress bar
+                let progress = 0;
+                const progressBar = document.getElementById('analysisProgress');
+                const progressPercent = document.getElementById('progressPercent');
+
+                // Estimate progress based on typical analysis time (15-30 seconds)
+                // Progress speeds up initially, then slows down near the end
+                progressInterval = setInterval(() => {
+                    if (progress < 90) {
+                        // Increase faster at the beginning
+                        if (progress < 30) {
+                            progress += 2;
+                        } else if (progress < 60) {
+                            progress += 1;
+                        } else {
+                            progress += 0.5;
+                        }
+                        progressBar.style.width = progress + '%';
+                        progressPercent.textContent = Math.floor(progress);
+                    }
+                }, 300); // Update every 300ms
 
                 const formData = new FormData();
                 formData.append('file', fileInput.files[0]);
@@ -948,6 +1057,12 @@
                     body: formData
                 });
 
+                // Complete the progress bar
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                progressPercent.textContent = '100';
+                await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause at 100%
+
                 const result = await response.json();
                 if (response.ok) {
                     showResults(result);
@@ -955,6 +1070,7 @@
                     alert('Error: ' + (result.detail?.message || result.error || 'Processing Failed'));
                 }
             } catch (err) {
+                clearInterval(progressInterval);
                 alert('Connection error: ' + err.message);
             } finally {
                 processBtn.disabled = false;
@@ -972,75 +1088,123 @@
             document.getElementById('resResolution').innerText = `${meta.width || 0}x${meta.height || 0}`;
             document.getElementById('resFileType').innerText = meta.format_name?.split(',')[0].toUpperCase() || 'N/A';
 
-            // Tag Injection
-            const tagsContainer = document.getElementById('resTags');
-            tagsContainer.innerHTML = '';
+            // Get analysis results
+            const analysisResults = data.analysis_results || {};
 
-            const addTag = (text, gradient, imageUrl) => {
-                if (imageUrl) {
-                    const card = document.createElement('div');
-                    card.className = 'visual-detection-card';
-                    card.innerHTML = `
-                        <img src="http://localhost:8000${imageUrl}" alt="${text}">
-                        <span class="card-label">${text}</span>
-                    `;
-                    tagsContainer.appendChild(card);
-                } else {
-                    const tag = document.createElement('span');
-                    tag.className = 'tag';
-                    if (gradient) tag.style.background = gradient;
-                    tag.innerText = text;
-                    tagsContainer.appendChild(tag);
-                }
+            // Helper function to create detection card
+            const createDetectionCard = (label, imageUrl) => {
+                const card = document.createElement('div');
+                card.className = 'visual-detection-card';
+                card.innerHTML = `
+                    <img src="http://localhost:8000${imageUrl}" alt="${label}">
+                    <span class="card-label">${label}</span>
+                `;
+                return card;
             };
 
-            // 1. Requested Analyses
-            (data.detection_types || []).forEach(d => addTag(d.toUpperCase(), null));
+            // 1. Object Detection Results
+            const objectSection = document.getElementById('objectDetectionSection');
+            const objectResults = document.getElementById('objectDetectionResults');
+            objectResults.innerHTML = '';
 
-            // 2. Specific Objects
-            (data.detected_objects || []).forEach(obj =>
-                addTag(obj.label || obj, 'linear-gradient(135deg, #10b981 0%, #059669 100%)', obj.image_url));
-
-            // 3. Detected People
-            (data.detected_faces || []).forEach(face =>
-                addTag(face.label || face, 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)', face.image_url));
-
-            // 4. Matches
-            (data.matches_found || []).forEach(match =>
-                addTag(match.label || match, 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', match.image_url));
-
-            // Transcript & Score
-            document.getElementById('resTranscript').innerText = data.transcript || "No transcript generated.";
-            animateValue(document.getElementById('resScore'), 0, Math.round(data.score || 0), 1500);
-
-            const statusText = document.getElementById('resStatus');
-            if (data.passed) {
-                statusText.innerHTML = '<i class="fas fa-check-circle"></i> Analysis Complete';
-                statusText.style.color = '#43e97b';
-            } else {
-                statusText.innerHTML = `<i class="fas fa-exclamation-circle"></i> Alert: ${data.fail_reasons?.join(', ') || 'Processing Error'}`;
-                statusText.style.color = '#f5576c';
+            if (analysisResults.object_detection?.enabled && analysisResults.object_detection.detections?.length > 0) {
+                objectSection.style.display = 'block';
+                analysisResults.object_detection.detections.forEach(obj => {
+                    objectResults.appendChild(createDetectionCard(obj.label, obj.image_url));
+                });
+            } else if (analysisResults.object_detection?.enabled) {
+                objectSection.style.display = 'block';
+                objectResults.innerHTML = '<p style="color: rgba(255,255,255,0.6); margin: 1rem 0;">No objects detected in this video.</p>';
             }
+
+            // 2. Face Detection Results
+            const faceSection = document.getElementById('faceDetectionSection');
+            const faceResults = document.getElementById('faceDetectionResults');
+            faceResults.innerHTML = '';
+
+            if (analysisResults.face_detection?.enabled && analysisResults.face_detection.faces?.length > 0) {
+                faceSection.style.display = 'block';
+                analysisResults.face_detection.faces.forEach(face => {
+                    faceResults.appendChild(createDetectionCard(face.label, face.image_url));
+                });
+            } else if (analysisResults.face_detection?.enabled) {
+                faceSection.style.display = 'block';
+                faceResults.innerHTML = '<p style="color: rgba(255,255,255,0.6); margin: 1rem 0;">No faces detected in this video.</p>';
+            }
+
+            // 3. Motion Analysis Results
+            const motionSection = document.getElementById('motionAnalysisSection');
+            const motionResults = document.getElementById('motionAnalysisResults');
+            motionResults.innerHTML = '';
+
+            if (analysisResults.motion_analysis?.enabled) {
+                motionSection.style.display = 'block';
+                const motionData = analysisResults.motion_analysis;
+
+                if (motionData.motion_detected) {
+                    const regions = motionData.motion_regions || [];
+                    motionResults.innerHTML = `
+                        <div style="padding: 1rem; background: rgba(67, 233, 123, 0.1); border-radius: 12px; border: 1px solid rgba(67, 233, 123, 0.3);">
+                            <p style="color: #43e97b; font-weight: 600; margin-bottom: 0.5rem;">
+                                <i class="fas fa-check-circle"></i> Motion Detected
+                            </p>
+                            <p style="color: rgba(255,255,255,0.8); margin-bottom: 1rem;">
+                                Detected ${regions.length} regions with significant movement.
+                            </p>
+                            ${regions.length > 0 ? `
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
+                                    ${regions.map(r => `
+                                        <div style="background: rgba(255,255,255,0.05); padding: 0.75rem; border-radius: 8px;">
+                                            <div style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">Frame ${r.frame_index}</div>
+                                            <div style="font-size: 1.1rem; font-weight: 600; color: white;">${r.motion_percentage}%</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                } else {
+                    motionResults.innerHTML = '<p style="color: rgba(255,255,255,0.6); margin: 1rem 0;">No significant motion detected in this video.</p>';
+                }
+            }
+
+            // 4. Specific Search Results
+            const searchSection = document.getElementById('specificSearchSection');
+            const searchResults = document.getElementById('specificSearchResults');
+            searchResults.innerHTML = '';
+
+            if (analysisResults.specific_search?.enabled && analysisResults.specific_search.matches?.length > 0) {
+                searchSection.style.display = 'block';
+                const targetType = analysisResults.specific_search.target_type;
+
+                analysisResults.specific_search.matches.forEach(match => {
+                    const label = match.confidence ?
+                        `${match.label} (${Math.round(match.confidence * 100)}%)` :
+                        match.label;
+                    searchResults.appendChild(createDetectionCard(label, match.image_url));
+                });
+            } else if (analysisResults.specific_search?.enabled) {
+                searchSection.style.display = 'block';
+                searchResults.innerHTML = '<p style="color: rgba(255,255,255,0.6); margin: 1rem 0;">Target not found in this video.</p>';
+            }
+
+            // 5. Transcript
+            document.getElementById('resTranscript').innerText = data.transcript || "No transcript generated.";
 
             inputSection.style.display = 'none';
             resultsSection.style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function animateValue(obj, start, end, duration) {
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                obj.innerText = Math.floor(progress * (end - start) + start);
-                if (progress < 1) window.requestAnimationFrame(step);
-            };
-            window.requestAnimationFrame(step);
-        }
-
         document.getElementById('newAnalysisBtn').addEventListener('click', () => {
             document.getElementById('resultsSection').style.display = 'none';
             document.getElementById('inputSection').style.display = 'block';
+
+            // Hide all analysis sections
+            document.getElementById('objectDetectionSection').style.display = 'none';
+            document.getElementById('faceDetectionSection').style.display = 'none';
+            document.getElementById('motionAnalysisSection').style.display = 'none';
+            document.getElementById('specificSearchSection').style.display = 'none';
 
             // Reset Form State
             fileInput.value = '';
