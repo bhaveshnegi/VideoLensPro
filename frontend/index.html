@@ -4,645 +4,305 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VideoLens Pro - AI Vision Studio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    <title>VideoLens Pro | AI-Powered Video Analytics</title>
+    <!-- Modern Typography: Outfit for headers, Inter for body -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            /* Glassmorphism Variables */
-            --glass-bg: rgba(255, 255, 255, 0.08);
-            --glass-border: rgba(255, 255, 255, 0.18);
-            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            --glass-blur: blur(20px);
+            /* Premium Pro Palette */
+            --bg-deep: #05050a;
+            --bg-surface: #0c0c14;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
 
-            /* Color Palette */
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            /* Gradients */
+            --gradient-pro: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            --gradient-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
 
-            /* Spacing */
-            --spacing-xs: 0.5rem;
-            --spacing-sm: 1rem;
-            --spacing-md: 1.5rem;
-            --spacing-lg: 2rem;
-            --spacing-xl: 3rem;
-            --spacing-xxl: 4rem;
-
-            /* Border Radius */
-            --radius-sm: 12px;
-            --radius-md: 16px;
-            --radius-lg: 24px;
-            --radius-xl: 32px;
-
-            /* Transitions */
-            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            /* Spacing & Sizes */
+            --radius-pro: 20px;
+            --glass-blur: 16px;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-            background-size: 400% 400%;
-            animation: gradientShift 20s ease infinite;
-            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-deep);
+            background-image:
+                radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.15) 0%, transparent 40%);
             color: #ffffff;
-            line-height: 1.6;
+            line-height: 1.5;
+            min-height: 100vh;
             overflow-x: hidden;
         }
 
-        @keyframes gradientShift {
-
-            0%,
-            100% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
+        .pro-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            position: relative;
+            z-index: 2;
         }
 
-        /* Animated Background Elements */
-        .bg-animation {
+        /* Ambient Background elements */
+        .ambient-glow {
             position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
+            width: 600px;
+            height: 600px;
+            filter: blur(120px);
+            opacity: 0.4;
             z-index: 1;
-            overflow: hidden;
-        }
-
-        .bg-animation::before,
-        .bg-animation::after {
-            content: '';
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(102, 126, 234, 0.3) 0%, transparent 70%);
-            animation: float 25s infinite linear;
-        }
-
-        .bg-animation::before {
-            top: -200px;
-            left: -200px;
-            animation-delay: 0s;
-        }
-
-        .bg-animation::after {
-            bottom: -200px;
-            right: -200px;
-            animation-delay: 12s;
-            background: radial-gradient(circle, rgba(240, 147, 251, 0.3) 0%, transparent 70%);
+            pointer-events: none;
+            animation: float 20s infinite alternate;
         }
 
         @keyframes float {
+            0% {
+                transform: translate(-10%, -10%) scale(1);
+            }
 
-            0%,
             100% {
-                transform: translate(0, 0) scale(1);
-            }
-
-            25% {
-                transform: translate(100px, -100px) scale(1.1);
-            }
-
-            50% {
-                transform: translate(-50px, 50px) scale(0.9);
-            }
-
-            75% {
-                transform: translate(-100px, 100px) scale(1.05);
+                transform: translate(10%, 10%) scale(1.1);
             }
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: var(--spacing-lg);
-            position: relative;
-            z-index: 10;
-        }
-
-        /* Header Styles */
-        .header {
-            text-align: center;
-            margin-bottom: var(--spacing-xxl);
-            animation: fadeInUp 0.8s ease-out;
-        }
-
-        .header h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: var(--spacing-sm);
+        /* Typography */
+        h1,
+        h2,
+        h3,
+        .brand-font {
+            font-family: 'Outfit', sans-serif;
             letter-spacing: -0.02em;
         }
 
-        .header .subtitle {
+        .header-section {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: var(--gradient-pro);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
             font-size: 1.25rem;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 300;
-            max-width: 600px;
+            color: rgba(255, 255, 255, 0.6);
+            max-width: 700px;
             margin: 0 auto;
         }
 
-        /* Glass Card Component */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-xl);
-            padding: var(--spacing-xl);
-            box-shadow: var(--glass-shadow);
-            margin-bottom: var(--spacing-lg);
-            transition: var(--transition-smooth);
+        /* Pro Cards */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-pro);
+            padding: 2.5rem;
             position: relative;
-            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: var(--transition);
         }
 
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
         }
 
-        /* Section Headers */
-        .section-header {
+        .step-header {
             display: flex;
             align-items: center;
-            gap: var(--spacing-sm);
-            margin-bottom: var(--spacing-lg);
-            font-size: 1.5rem;
-            font-weight: 600;
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
         }
 
-        .section-number {
-            width: 40px;
-            height: 40px;
-            background: var(--primary-gradient);
-            border-radius: 50%;
+        .step-num {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-pro);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1rem;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        }
-
-        /* Upload Zone */
-        .upload-zone {
-            border: 2px dashed rgba(255, 255, 255, 0.2);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-xxl);
-            text-align: center;
-            transition: var(--transition-smooth);
-            cursor: pointer;
-            position: relative;
-            background: rgba(255, 255, 255, 0.02);
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .upload-zone:hover {
-            border-color: rgba(102, 126, 234, 0.6);
-            background: rgba(102, 126, 234, 0.05);
-            transform: translateY(-2px);
-        }
-
-        .upload-zone.dragover {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.02);
-            }
-        }
-
-        .upload-icon {
-            font-size: 3rem;
-            margin-bottom: var(--spacing-md);
-            display: block;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .upload-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: var(--spacing-xs);
-        }
-
-        .upload-subtitle {
-            color: rgba(255, 255, 255, 0.6);
             font-size: 0.9rem;
         }
 
-        /* Detection Grid */
-        .detection-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-lg);
+        .step-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
         }
 
-        .detection-option {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-lg);
-            cursor: pointer;
-            transition: var(--transition-smooth);
-            position: relative;
-            backdrop-filter: blur(10px);
+        /* Upload Area */
+        .drop-zone {
+            height: 280px;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-pro);
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .detection-option:hover {
-            transform: translateY(-6px);
-            border-color: rgba(102, 126, 234, 0.3);
-            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
-        }
-
-        .detection-option.selected {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.15);
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
-        }
-
-        .detection-option input {
-            position: absolute;
-            opacity: 0;
-        }
-
-        .detection-icon {
-            font-size: 2rem;
-            margin-bottom: var(--spacing-sm);
-            display: block;
-        }
-
-        .detection-title {
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: var(--spacing-xs);
-        }
-
-        .detection-desc {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.7);
-            line-height: 1.5;
-        }
-
-        .checkmark {
-            position: absolute;
-            top: var(--spacing-md);
-            right: var(--spacing-md);
-            width: 24px;
-            height: 24px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
-            color: white;
-            transition: var(--transition-fast);
-            opacity: 0;
-        }
-
-        .detection-option.selected .checkmark {
-            background: var(--success-gradient);
-            opacity: 1;
-            animation: scaleIn 0.3s ease-out;
-        }
-
-        @keyframes scaleIn {
-            from {
-                transform: scale(0);
-            }
-
-            to {
-                transform: scale(1);
-            }
-        }
-
-        /* Target Image Section */
-        #targetImageSection {
-            display: none;
-            animation: slideDown 0.4s ease-out;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .target-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .target-upload {
-            border: 2px dashed rgba(255, 255, 255, 0.2);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-lg);
-            text-align: center;
-            transition: var(--transition-smooth);
             cursor: pointer;
+            transition: var(--transition);
             background: rgba(255, 255, 255, 0.02);
-            margin-bottom: var(--spacing-lg);
+            gap: 1rem;
         }
 
-        .target-upload:hover {
-            border-color: rgba(240, 147, 251, 0.6);
-            background: rgba(240, 147, 251, 0.05);
+        .drop-zone:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+            transform: scale(0.99);
         }
 
-        .image-preview-container {
+        .drop-zone i {
+            font-size: 3.5rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .drop-zone-text {
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .drop-zone-sub {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Config Grid */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .option-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 1.75rem;
+            cursor: pointer;
+            transition: var(--transition);
             display: flex;
-            align-items: center;
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-md);
+            flex-direction: column;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
         }
 
-        .image-preview {
-            width: 100px;
-            height: 100px;
-            border-radius: var(--radius-md);
-            object-fit: cover;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            display: none;
+        .option-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateY(-5px);
+        }
+
+        .option-card.selected {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+        }
+
+        .option-icon {
+            font-size: 2rem;
+            background: var(--gradient-pro);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .option-label {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .option-desc {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            line-height: 1.6;
         }
 
         /* Buttons */
-        .btn {
-            padding: var(--spacing-md) var(--spacing-xl);
-            border-radius: var(--radius-lg);
+        .pro-btn {
+            width: 100%;
+            padding: 1.25rem;
+            border-radius: 16px;
             border: none;
-            font-size: 1rem;
-            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: var(--transition-smooth);
-            display: inline-flex;
+            transition: var(--transition);
+            display: flex;
             align-items: center;
             justify-content: center;
-            gap: var(--spacing-sm);
-            text-transform: none;
-            letter-spacing: normal;
-            width: 100%;
+            gap: 0.75rem;
         }
 
-        .btn-primary {
-            background: var(--primary-gradient);
-            color: white;
-            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+        .btn-main {
+            background: var(--gradient-pro);
+            color: #fff;
+            box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.5);
         }
 
-        .btn-primary:hover:not(:disabled) {
+        .btn-main:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.6);
+            filter: brightness(1.1);
         }
 
-        .btn:disabled {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.4);
+        .btn-main:disabled {
+            opacity: 0.4;
             cursor: not-allowed;
-            box-shadow: none;
+            filter: grayscale(1);
         }
 
-        .btn-outline {
-            background: transparent;
-            border: 2px solid #667eea;
-            color: white;
-            margin-top: var(--spacing-xl);
+        /* Results Visualization */
+        .results-container {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2rem;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .btn-outline:hover {
-            background: rgba(102, 126, 234, 0.1);
-            transform: translateY(-2px);
-        }
-
-        /* Results Section */
-        #resultsSection {
-            display: none;
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        @keyframes fadeIn {
+        @keyframes slideUp {
             from {
                 opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        .results-grid {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: var(--spacing-xl);
-            margin-top: var(--spacing-lg);
-        }
-
-        .score-card {
-            background: var(--glass-bg);
-            backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-xl);
-            padding: var(--spacing-xl);
-            text-align: center;
-            box-shadow: var(--glass-shadow);
-            height: fit-content;
-        }
-
-        .score-value {
-            font-size: 5rem;
-            font-weight: 800;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1;
-            margin-bottom: var(--spacing-sm);
-        }
-
-        .score-label {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.8);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        .score-status {
-            margin-top: var(--spacing-md);
-            padding: var(--spacing-sm) var(--spacing-md);
-            border-radius: var(--radius-sm);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .data-card {
-            background: var(--glass-bg);
-            backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-xl);
-            padding: var(--spacing-xl);
-            box-shadow: var(--glass-shadow);
-        }
-
-        .metadata-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .metadata-item {
-            background: rgba(255, 255, 255, 0.05);
-            padding: var(--spacing-md);
-            border-radius: var(--radius-md);
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .metadata-label {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.6);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: var(--spacing-xs);
-        }
-
-        .metadata-value {
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        .detection-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-md);
-        }
-
-        .tag {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 100px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* Detection Visual Cards */
-        .visual-detection-card {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 0.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-            width: 140px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-        }
-
-        .visual-detection-card:hover {
-            transform: translateY(-4px);
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .visual-detection-card img {
-            width: 100%;
-            height: 90px;
-            object-fit: cover;
-            border-radius: 12px;
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .visual-detection-card .card-label {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: white;
-            text-align: center;
-            max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .transcript-container {
-            margin-top: var(--spacing-lg);
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-lg);
-            max-height: 250px;
-            overflow-y: auto;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .transcript-text {
-            color: rgba(255, 255, 255, 0.85);
-            font-size: 1rem;
-            line-height: 1.7;
-            font-style: italic;
-            white-space: pre-wrap;
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(40px);
             }
 
             to {
@@ -651,579 +311,467 @@
             }
         }
 
-        /* Progress Bar */
-        .progress-container {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 100px;
-            height: 8px;
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius-pro);
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* Result Item Cards */
+        .visual-card {
+            background: #11111a;
+            border-radius: 16px;
             overflow: hidden;
-            margin-bottom: var(--spacing-sm);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: var(--transition);
         }
 
-        .progress-bar {
-            height: 100%;
-            background: var(--success-gradient);
-            border-radius: 100px;
-            transition: width 0.3s ease;
-            box-shadow: 0 0 20px rgba(67, 233, 123, 0.5);
-            position: relative;
+        .visual-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
         }
 
-        .progress-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            animation: shimmer 1.5s infinite;
+        .visual-card img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            background: #000;
         }
 
-        @keyframes shimmer {
-            0% {
-                transform: translateX(-100%);
-            }
-
-            100% {
-                transform: translateX(100%);
-            }
-        }
-
-        .progress-text {
+        .visual-info {
+            padding: 1rem;
             font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.9);
             font-weight: 600;
             text-align: center;
         }
 
-        /* Loading */
-        .loading-spinner {
-            width: 24px;
-            height: 24px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+        /* Transcript */
+        .transcript-box {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 2rem;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        /* Progress Layer */
+        .processing-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(5, 5, 10, 0.8);
+            backdrop-filter: blur(12px);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-pro);
+            gap: 2rem;
+        }
+
+        .loader-ring {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--primary);
             border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
+            animation: spin 1s linear infinite;
         }
 
         @keyframes spin {
-            to {
+            100% {
                 transform: rotate(360deg);
             }
         }
 
-        /* Responsive Design */
-        @media (max-width: 900px) {
-            .results-grid {
+        /* Responsive */
+        @media (max-width: 992px) {
+            .results-container {
                 grid-template-columns: 1fr;
+            }
+
+            .stat-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="bg-animation"></div>
+    <div class="ambient-glow" style="top: -10%; left: -10%;"></div>
+    <div class="ambient-glow" style="bottom: -10%; right: -10%; background: var(--secondary);"></div>
 
-    <div class="container">
-        <!-- Input Section -->
+    <div class="pro-container">
+        <!-- Input Dashboard -->
         <div id="inputSection">
-            <header class="header">
+            <header class="header-section">
+                <span class="badge">Next-Gen AI Vision</span>
                 <h1>VideoLens Pro</h1>
-                <p class="subtitle">Deploy state-of-the-art computer vision models on your video files in seconds.</p>
+                <p class="subtitle">Experience high-fidelity computer vision with our premium modular analysis engine. Fast, precise, and professional.</p>
             </header>
 
-            <div class="glass-card">
-                <!-- Step 1: Video Upload -->
-                <div class="section-header">
-                    <div class="section-number">1</div>
-                    Upload Source Video
+            <div class="glass-panel" style="max-width: 900px; margin: 0 auto;">
+                <!-- Step 1 -->
+                <div class="step-header">
+                    <div class="step-num">1</div>
+                    <div class="step-title">Source Media</div>
                 </div>
-                <div class="upload-zone" id="videoDropZone" onclick="document.getElementById('fileInput').click()">
-                    <i class="fas fa-film upload-icon"></i>
-                    <div class="upload-title" id="videoFileName">Drop your video here or click to browse</div>
-                    <div class="upload-subtitle">Supports MP4, MOV, AVI (Max 500MB)</div>
+
+                <div class="drop-zone" id="videoDropZone" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-clapperboard"></i>
+                    <div class="drop-zone-text" id="videoFileName">Release your video here or browse files</div>
+                    <div class="drop-zone-sub">MP4, MOV, or AVI up to 500MB supported</div>
                     <input type="file" id="fileInput" accept="video/*" style="display: none;">
                 </div>
 
-                <!-- Step 2: Detection Selection -->
-                <div class="section-header">
-                    <div class="section-number">2</div>
-                    Select Analysis Types
+                <!-- Step 2 -->
+                <div class="step-header" style="margin-top: 4rem;">
+                    <div class="step-num">2</div>
+                    <div class="step-title">Analysis Configuration</div>
                 </div>
-                <div class="detection-grid">
-                    <label class="detection-option" data-type="objects">
-                        <input type="checkbox" name="detection" value="objects">
-                        <i class="fas fa-car detection-icon"></i>
-                        <span class="detection-title">Object Detection</span>
-                        <span class="detection-desc">Detect cars, people, electronics, and 80+ categories.</span>
-                        <div class="checkmark"><i class="fas fa-check"></i></div>
+
+                <div class="options-grid">
+                    <label class="option-card" data-type="objects">
+                        <input type="checkbox" name="detection" value="objects" style="display:none">
+                        <i class="fas fa-microchip option-icon"></i>
+                        <span class="option-label">Neural Objects</span>
+                        <span class="option-desc">Detect and classify 80+ categories of entities with sub-second latency.</span>
+                        <div class="checkmark" style="display:none"><i class="fas fa-check"></i></div>
                     </label>
 
-                    <label class="detection-option" data-type="faces">
-                        <input type="checkbox" name="detection" value="faces">
-                        <i class="fas fa-user-circle detection-icon"></i>
-                        <span class="detection-title">Face Processing</span>
-                        <span class="detection-desc">Extract face embeddings and track unique individuals.</span>
-                        <div class="checkmark"><i class="fas fa-check"></i></div>
+                    <label class="option-card" data-type="faces">
+                        <input type="checkbox" name="detection" value="faces" style="display:none">
+                        <i class="fas fa-fingerprint option-icon"></i>
+                        <span class="option-label">Biometric Faces</span>
+                        <span class="option-desc">Extract features, track unique identities, and analyze demographics.</span>
                     </label>
 
-                    <label class="detection-option" data-type="motion">
-                        <input type="checkbox" name="detection" value="motion">
-                        <i class="fas fa-bolt detection-icon"></i>
-                        <span class="detection-title">Motion Analysis</span>
-                        <span class="detection-desc">Identify areas of movement and activity triggers.</span>
-                        <div class="checkmark"><i class="fas fa-check"></i></div>
+                    <label class="option-card" data-type="motion">
+                        <input type="checkbox" name="detection" value="motion" style="display:none">
+                        <i class="fas fa-hurricane option-icon"></i>
+                        <span class="option-label">Motion Kinetics</span>
+                        <span class="option-desc">Analyze optical flow and detect high-energy activity regions.</span>
                     </label>
 
-                    <label class="detection-option" data-type="target" id="targetToggle">
-                        <input type="checkbox" name="detection" value="target">
-                        <i class="fas fa-crosshairs detection-icon"></i>
-                        <span class="detection-title">Specific Search</span>
-                        <span class="detection-desc">Find a specific target using a reference image.</span>
-                        <div class="checkmark"><i class="fas fa-check"></i></div>
+                    <label class="option-card" data-type="target" id="targetToggle">
+                        <input type="checkbox" name="detection" value="target" style="display:none">
+                        <i class="fas fa-bullseye option-icon"></i>
+                        <span class="option-label">Precision Search</span>
+                        <span class="option-desc">Isolate specific subjects using zero-shot reference matching.</span>
                     </label>
                 </div>
 
-                <!-- Step 3: Specific Search Options (Conditional) -->
-                <div id="targetImageSection">
-                    <div class="section-header">
-                        <div class="section-number">3</div>
-                        Target Search Configuration
+                <!-- Step 3: Conditional Search -->
+                <div id="targetImageSection" style="display: none; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); margin-top: -1rem; margin-bottom: 3rem;">
+                    <div class="step-header">
+                        <div class="step-num">3</div>
+                        <div class="step-title">Reference Selection</div>
                     </div>
-                    <div class="target-options">
-                        <label class="detection-option sub-option" data-sub-type="object">
-                            <input type="radio" name="targetType" value="object" checked>
-                            <i class="fas fa-box detection-icon"></i>
-                            <span class="detection-title">Object Search</span>
-                            <span class="detection-desc">Search for a specific object class.</span>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                        <label class="option-card" style="padding: 1.25rem;">
+                            <input type="radio" name="targetType" value="object" checked style="display:none">
+                            <span class="option-label" style="font-size: 0.9rem;">Generic Object</span>
                         </label>
-                        <label class="detection-option sub-option" data-sub-type="face">
-                            <input type="radio" name="targetType" value="face">
-                            <i class="fas fa-user detection-icon"></i>
-                            <span class="detection-title">Face Match</span>
-                            <span class="detection-desc">Find this person in the video.</span>
+                        <label class="option-card" style="padding: 1.25rem;">
+                            <input type="radio" name="targetType" value="face" style="display:none">
+                            <span class="option-label" style="font-size: 0.9rem;">Human Face</span>
                         </label>
                     </div>
 
-                    <div class="target-upload" onclick="document.getElementById('imageInput').click()">
-                        <i class="fas fa-image upload-icon"></i>
-                        <div class="upload-title" id="imageFileName">Upload sample photo</div>
-                        <div class="upload-subtitle">JPG/PNG required for target matching</div>
+                    <div class="drop-zone" style="height: 180px;" onclick="document.getElementById('imageInput').click()">
+                        <i class="fas fa-image" style="font-size: 2rem;"></i>
+                        <div class="drop-zone-text" id="imageFileName" style="font-size: 1rem;">Upload Reference Image</div>
                         <input type="file" id="imageInput" name="target_image" accept="image/*" style="display: none;">
                     </div>
-                    <div class="image-preview-container">
-                        <img id="imgPreview" class="image-preview">
-                    </div>
+                    <img id="imgPreview" style="display:none; width: 100%; max-height: 200px; object-fit: contain; margin-top: 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
                 </div>
 
-                <!-- Action Button -->
-                <button class="btn btn-primary" id="processBtn" style="margin-top: 2rem;">
-                    <i class="fas fa-rocket"></i> Start Processing
+                <button class="pro-btn btn-main" id="processBtn" disabled>
+                    <i class="fas fa-bolt-lightning"></i> Initialize Processing
                 </button>
+
+                <!-- Processing State Overlay -->
+                <div class="processing-overlay" id="loadingOverlay">
+                    <div class="loader-ring"></div>
+                    <div style="text-align: center;">
+                        <div style="font-family: 'Outfit'; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">Synthesizing Intelligence</div>
+                        <div style="color: rgba(255,255,255,0.5); font-size: 0.9rem;">Applying neural networks to your media... <span id="progressValue">0</span>%</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Results Section -->
-        <div id="resultsSection">
-            <header class="header">
-                <h1>Analysis Complete</h1>
-                <p class="subtitle">AI Insights generated successfully for your media.</p>
+        <!-- Results View -->
+        <div id="resultsSection" style="display: none;">
+            <header class="header-section">
+                <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success); border-color: rgba(16, 185, 129, 0.2);">Synthesis Complete</span>
+                <h1>Insight Report</h1>
+                <p class="subtitle">Detailed analysis derived from multi-modal AI processing.</p>
             </header>
 
-            <!-- Video Metadata Card -->
-            <div class="glass-card">
-                <div class="section-header">
-                    <div class="section-number"><i class="fas fa-info-circle"></i></div>
-                    Video Metadata
-                </div>
-                <div class="metadata-grid">
-                    <div class="metadata-item">
-                        <div class="metadata-label">Duration</div>
-                        <div class="metadata-value" id="resDuration">0s</div>
+            <div class="results-container">
+                <!-- Sidebar: Stats -->
+                <aside style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div class="stat-card">
+                        <span class="stat-label">File Duration</span>
+                        <span class="stat-value" id="resDuration">0s</span>
                     </div>
-                    <div class="metadata-item">
-                        <div class="metadata-label">Resolution</div>
-                        <div class="metadata-value" id="resResolution">0x0</div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), transparent);">
+                        <span class="stat-label">Canvas Matrix</span>
+                        <span class="stat-value" id="resResolution">0x0</span>
                     </div>
-                    <div class="metadata-item">
-                        <div class="metadata-label">Encoding</div>
-                        <div class="metadata-value" id="resFileType">N/A</div>
+                    <div class="stat-card">
+                        <span class="stat-label">Codec Stream</span>
+                        <span class="stat-value" id="resFileType">N/A</span>
                     </div>
-                </div>
-            </div>
+                    
+                    <button class="pro-btn" id="newAnalysisBtn" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; margin-top: auto;">
+                        <i class="fas fa-rotate"></i> Reset Dashboard
+                    </button>
+                </aside>
 
-            <!-- Object Detection Results -->
-            <div id="objectDetectionSection" class="glass-card" style="display: none;">
-                <div class="section-header">
-                    <div class="section-number"><i class="fas fa-car"></i></div>
-                    Object Detection Results
-                </div>
-                <div class="detection-tags" id="objectDetectionResults">
-                    <!-- Object detection cards injected here -->
-                </div>
-            </div>
+                <!-- Main: Findings -->
+                <main style="display: flex; flex-direction: column; gap: 2rem;">
+                    <!-- Objects -->
+                    <section id="objectDetectionSection" class="glass-panel" style="display: none;">
+                        <div class="step-header" style="margin-bottom: 1.5rem;">
+                            <i class="fas fa-microchip" style="color: var(--primary);"></i>
+                            <span class="step-title" style="font-size: 1.2rem;">Entity Detections</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem;" id="objectDetectionResults"></div>
+                    </section>
 
-            <!-- Face Detection Results -->
-            <div id="faceDetectionSection" class="glass-card" style="display: none;">
-                <div class="section-header">
-                    <div class="section-number"><i class="fas fa-user-circle"></i></div>
-                    Face Detection Results
-                </div>
-                <div class="detection-tags" id="faceDetectionResults">
-                    <!-- Face detection cards injected here -->
-                </div>
-            </div>
+                    <!-- Faces -->
+                    <section id="faceDetectionSection" class="glass-panel" style="display: none;">
+                        <div class="step-header" style="margin-bottom: 1.5rem;">
+                            <i class="fas fa-fingerprint" style="color: var(--secondary);"></i>
+                            <span class="step-title" style="font-size: 1.2rem;">Biometric Clusters</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem;" id="faceDetectionResults"></div>
+                    </section>
+                    
+                    <!-- Motion -->
+                    <section id="motionAnalysisSection" class="glass-panel" style="display: none;">
+                        <div class="step-header" style="margin-bottom: 1.5rem;">
+                            <i class="fas fa-hurricane" style="color: var(--accent);"></i>
+                            <span class="step-title" style="font-size: 1.2rem;">Kinetic Flow</span>
+                        </div>
+                        <div id="motionAnalysisResults"></div>
+                    </section>
 
-            <!-- Motion Analysis Results -->
-            <div id="motionAnalysisSection" class="glass-card" style="display: none;">
-                <div class="section-header">
-                    <div class="section-number"><i class="fas fa-bolt"></i></div>
-                    Motion Analysis Results
-                </div>
-                <div id="motionAnalysisResults">
-                    <!-- Motion analysis content injected here -->
-                </div>
-            </div>
+                    <!-- Search -->
+                    <section id="specificSearchSection" class="glass-panel" style="display: none;">
+                        <div class="step-header" style="margin-bottom: 1.5rem;">
+                            <i class="fas fa-bullseye" style="color: var(--warning);"></i>
+                            <span class="step-title" style="font-size: 1.2rem;">Precision Matches</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem;" id="specificSearchResults"></div>
+                    </section>
 
-            <!-- Specific Search Results -->
-            <div id="specificSearchSection" class="glass-card" style="display: none;">
-                <div class="section-header">
-                    <div class="section-number"><i class="fas fa-crosshairs"></i></div>
-                    Specific Search Results
-                </div>
-                <div class="detection-tags" id="specificSearchResults">
-                    <!-- Specific search results injected here -->
-                </div>
+                    <!-- Audio -->
+                    <section id="transcriptSection" class="glass-panel">
+                        <div class="step-header" style="margin-bottom: 1.5rem;">
+                            <i class="fas fa-ear-listen" style="color: var(--primary);"></i>
+                            <span class="step-title" style="font-size: 1.2rem;">Semantic Transcript</span>
+                        </div>
+                        <div class="transcript-box" id="resTranscript">Standing by for audio stream analysis...</div>
+                    </section>
+                </main>
             </div>
-
-            <!-- Audio Intelligence -->
-            <div id="transcriptSection" class="glass-card">
-                <div class="section-header">
-                    <div class="section-number"><i class="fas fa-comment-dots"></i></div>
-                    Audio Intelligence
-                </div>
-                <div class="transcript-container">
-                    <p class="transcript-text" id="resTranscript">Processing audio...</p>
-                </div>
-            </div>
-
-            <button class="btn btn-outline" id="newAnalysisBtn">
-                <i class="fas fa-sync-alt"></i> Start New Analysis
-            </button>
         </div>
     </div>
 
     <script>
-        // DOM Elements
-        const fileInput = document.getElementById('fileInput');
-        const videoDropZone = document.getElementById('videoDropZone');
-        const videoFileName = document.getElementById('videoFileName');
-        const imageInput = document.getElementById('imageInput');
-        const imageFileName = document.getElementById('imageFileName');
-        const imgPreview = document.getElementById('imgPreview');
-        const targetToggle = document.getElementById('targetToggle');
-        const targetImageSection = document.getElementById('targetImageSection');
-        const processBtn = document.getElementById('processBtn');
+        // High-Precision UI State Management
+        const state = {
+            videoFile: null,
+            imageFile: null,
+            isProcessing: false
+        };
 
-        // File Selection Handlers
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                videoFileName.innerHTML = `<i class="fas fa-check" style="color: #43e97b;"></i> ${e.target.files[0].name}`;
-                updateProcessButtonState();
+        const els = {
+            fileInput: document.getElementById('fileInput'),
+            imageInput: document.getElementById('imageInput'),
+            videoDrop: document.getElementById('videoDropZone'),
+            processBtn: document.getElementById('processBtn'),
+            overlay: document.getElementById('loadingOverlay'),
+            progress: document.getElementById('progressValue'),
+            targetSection: document.getElementById('targetImageSection')
+        };
+
+        // Option Card Interaction
+        document.querySelectorAll('.option-card').forEach(card => {
+            const input = card.querySelector('input');
+            
+            // Initial sync
+            if(input && input.checked) card.classList.add('selected');
+
+            card.addEventListener('click', (e) => {
+                if(input.type === 'radio') {
+                    const group = document.querySelectorAll(`input[name="${input.name}"]`);
+                    group.forEach(i => i.closest('.option-card').classList.remove('selected'));
+                    input.checked = true;
+                    card.classList.add('selected');
+                } else {
+                    input.checked = !input.checked;
+                    card.classList.toggle('selected', input.checked);
+                    
+                    if(input.value === 'target') {
+                        els.targetSection.style.display = input.checked ? 'block' : 'none';
+                    }
+                }
+                validateState();
+            });
+        });
+
+        // File Handlers
+        els.fileInput.addEventListener('change', (e) => {
+            if(e.target.files[0]) {
+                state.videoFile = e.target.files[0];
+                document.getElementById('videoFileName').innerHTML = `<span style="color: var(--success)">✓</span> ${state.videoFile.name}`;
+                validateState();
             }
         });
 
-        imageInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-                imageFileName.innerHTML = `<i class="fas fa-check" style="color: #43e97b;"></i> ${file.name}`;
+        els.imageInput.addEventListener('change', (e) => {
+            if(e.target.files[0]) {
+                state.imageFile = e.target.files[0];
+                document.getElementById('imageFileName').textContent = state.imageFile.name;
                 const reader = new FileReader();
                 reader.onload = (re) => {
-                    imgPreview.src = re.target.result;
-                    imgPreview.style.display = 'block';
-                }
-                reader.readAsDataURL(file);
+                    const preview = document.getElementById('imgPreview');
+                    preview.src = re.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(state.imageFile);
             }
         });
 
-        // Toggle Listeners
-        document.querySelectorAll('.detection-option').forEach(opt => {
-            const input = opt.querySelector('input');
-            input.addEventListener('change', () => {
-                if (input.type === 'radio') {
-                    document.querySelectorAll(`input[name="${input.name}"]`).forEach(radio => {
-                        const parent = radio.closest('.detection-option');
-                        radio.checked ? parent.classList.add('selected') : parent.classList.remove('selected');
-                    });
-                } else {
-                    input.checked ? opt.classList.add('selected') : opt.classList.remove('selected');
-                }
-
-                if (input.value === 'target') {
-                    targetImageSection.style.display = input.checked ? 'block' : 'none';
-                }
-                updateProcessButtonState();
-            });
-
-            if (input.checked) opt.classList.add('selected');
-        });
-
-        function updateProcessButtonState() {
-            const selected = document.querySelectorAll('input[name="detection"]:checked');
-            const videoLoaded = fileInput.files.length > 0;
-            processBtn.disabled = !(selected.length > 0 && videoLoaded);
+        function validateState() {
+            const hasVideo = !!state.videoFile;
+            const hasSelection = document.querySelectorAll('input[name="detection"]:checked').length > 0;
+            els.processBtn.disabled = !(hasVideo && hasSelection);
         }
 
-        // Drag & Drop
-        ['dragenter', 'dragover'].forEach(name => {
-            videoDropZone.addEventListener(name, (e) => {
-                e.preventDefault();
-                videoDropZone.classList.add('dragover');
-            });
-        });
-
-        ['dragleave', 'drop'].forEach(name => {
-            videoDropZone.addEventListener(name, (e) => {
-                e.preventDefault();
-                videoDropZone.classList.remove('dragover');
-                if (name === 'drop') {
-                    fileInput.files = e.dataTransfer.files;
-                    if (fileInput.files.length > 0) {
-                        videoFileName.innerHTML = `<i class="fas fa-check" style="color: #43e97b;"></i> ${fileInput.files[0].name}`;
-                        updateProcessButtonState();
-                    }
+        // Logic Implementation
+        els.processBtn.addEventListener('click', async () => {
+            els.overlay.style.display = 'flex';
+            let progress = 0;
+            const timer = setInterval(() => {
+                if(progress < 95) {
+                    progress += (Math.random() * 5);
+                    els.progress.textContent = Math.floor(progress);
                 }
-            });
-        });
-
-        // Analysis Processing
-        processBtn.addEventListener('click', async () => {
-            const originalHTML = processBtn.innerHTML;
-            let progressInterval;
+            }, 500);
 
             try {
-                processBtn.disabled = true;
-
-                // Create progress bar UI
-                processBtn.innerHTML = `
-                    <div style="width: 100%;">
-                        <div class="progress-container">
-                            <div class="progress-bar" id="analysisProgress" style="width: 0%"></div>
-                        </div>
-                        <div class="progress-text"><span id="progressPercent">0</span>% - Analyzing video...</div>
-                    </div>
-                `;
-
-                // Animate progress bar
-                let progress = 0;
-                const progressBar = document.getElementById('analysisProgress');
-                const progressPercent = document.getElementById('progressPercent');
-
-                // Estimate progress based on typical analysis time (15-30 seconds)
-                // Progress speeds up initially, then slows down near the end
-                progressInterval = setInterval(() => {
-                    if (progress < 90) {
-                        // Increase faster at the beginning
-                        if (progress < 30) {
-                            progress += 2;
-                        } else if (progress < 60) {
-                            progress += 1;
-                        } else {
-                            progress += 0.5;
-                        }
-                        progressBar.style.width = progress + '%';
-                        progressPercent.textContent = Math.floor(progress);
-                    }
-                }, 300); // Update every 300ms
-
                 const formData = new FormData();
-                formData.append('file', fileInput.files[0]);
-
-                document.querySelectorAll('input[name="detection"]:checked').forEach(det => {
-                    formData.append('detection', det.value);
-                });
-
+                formData.append('file', state.videoFile);
+                document.querySelectorAll('input[name="detection"]:checked').forEach(d => formData.append('detection', d.value));
+                
                 const targetType = document.querySelector('input[name="targetType"]:checked');
-                if (targetType) formData.append('targetType', targetType.value);
-
-                if (imageInput.files.length > 0) {
-                    formData.append('target_image', imageInput.files[0]);
-                }
+                if(targetType) formData.append('targetType', targetType.value);
+                if(state.imageFile) formData.append('target_image', state.imageFile);
 
                 const response = await fetch('http://localhost:8000/api/v1/video/analyze', {
                     method: 'POST',
                     body: formData
                 });
 
-                // Complete the progress bar
-                clearInterval(progressInterval);
-                progressBar.style.width = '100%';
-                progressPercent.textContent = '100';
-                await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause at 100%
+                if(!response.ok) throw new Error('Neural Processing Failed');
+                
+                const data = await response.json();
+                clearInterval(timer);
+                els.progress.textContent = '100';
+                setTimeout(() => showDashboard(data), 600);
 
-                const result = await response.json();
-                if (response.ok) {
-                    showResults(result);
-                } else {
-                    alert('Error: ' + (result.detail?.message || result.error || 'Processing Failed'));
-                }
-            } catch (err) {
-                clearInterval(progressInterval);
-                alert('Connection error: ' + err.message);
-            } finally {
-                processBtn.disabled = false;
-                processBtn.innerHTML = originalHTML;
+            } catch(err) {
+                clearInterval(timer);
+                els.overlay.style.display = 'none';
+                alert(err.message);
             }
         });
 
-        function showResults(data) {
-            const inputSection = document.getElementById('inputSection');
-            const resultsSection = document.getElementById('resultsSection');
+        function showDashboard(data) {
+            document.getElementById('inputSection').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            // Metadata Update
             const meta = data.metadata || {};
             document.getElementById('resDuration').innerText = `${Math.round(meta.duration_sec || 0)}s`;
             document.getElementById('resResolution').innerText = `${meta.width || 0}x${meta.height || 0}`;
             document.getElementById('resFileType').innerText = meta.format_name?.split(',')[0].toUpperCase() || 'N/A';
+            document.getElementById('resTranscript').innerText = data.transcript || "No high-confidence semantic data available.";
 
-            // Get analysis results
-            const analysisResults = data.analysis_results || {};
+            const res = data.analysis_results || {};
 
-            // Helper function to create detection card
-            const createDetectionCard = (label, imageUrl) => {
-                const card = document.createElement('div');
-                card.className = 'visual-detection-card';
-                card.innerHTML = `
-                    <img src="http://localhost:8000${imageUrl}" alt="${label}">
-                    <span class="card-label">${label}</span>
-                `;
-                return card;
-            };
+            renderResult('objectDetectionSection', 'objectDetectionResults', res.object_detection?.detections);
+            renderResult('faceDetectionSection', 'faceDetectionResults', res.face_detection?.faces);
+            renderResult('specificSearchSection', 'specificSearchResults', res.specific_search?.matches);
 
-            // 1. Object Detection Results
-            const objectSection = document.getElementById('objectDetectionSection');
-            const objectResults = document.getElementById('objectDetectionResults');
-            objectResults.innerHTML = '';
-
-            if (analysisResults.object_detection?.enabled && analysisResults.object_detection.detections?.length > 0) {
-                objectSection.style.display = 'block';
-                analysisResults.object_detection.detections.forEach(obj => {
-                    objectResults.appendChild(createDetectionCard(obj.label, obj.image_url));
-                });
-            } else if (analysisResults.object_detection?.enabled) {
-                objectSection.style.display = 'block';
-                objectResults.innerHTML = '<p style="color: rgba(255,255,255,0.6); margin: 1rem 0;">No objects detected in this video.</p>';
-            }
-
-            // 2. Face Detection Results
-            const faceSection = document.getElementById('faceDetectionSection');
-            const faceResults = document.getElementById('faceDetectionResults');
-            faceResults.innerHTML = '';
-
-            if (analysisResults.face_detection?.enabled && analysisResults.face_detection.faces?.length > 0) {
-                faceSection.style.display = 'block';
-                analysisResults.face_detection.faces.forEach(face => {
-                    faceResults.appendChild(createDetectionCard(face.label, face.image_url));
-                });
-            } else if (analysisResults.face_detection?.enabled) {
-                faceSection.style.display = 'block';
-                faceResults.innerHTML = '<p style="color: rgba(255,255,255,0.6); margin: 1rem 0;">No faces detected in this video.</p>';
-            }
-
-            // 3. Motion Analysis Results
-            const motionSection = document.getElementById('motionAnalysisSection');
-            const motionResults = document.getElementById('motionAnalysisResults');
-            motionResults.innerHTML = '';
-
-            if (analysisResults.motion_analysis?.enabled) {
-                motionSection.style.display = 'block';
-                const motionData = analysisResults.motion_analysis;
-
-                if (motionData.motion_detected) {
-                    const regions = motionData.motion_regions || [];
-                    motionResults.innerHTML = `
-                        <div style="padding: 1rem; background: rgba(67, 233, 123, 0.1); border-radius: 12px; border: 1px solid rgba(67, 233, 123, 0.3);">
-                            <p style="color: #43e97b; font-weight: 600; margin-bottom: 0.5rem;">
-                                <i class="fas fa-check-circle"></i> Motion Detected
-                            </p>
-                            <p style="color: rgba(255,255,255,0.8); margin-bottom: 1rem;">
-                                Detected ${regions.length} regions with significant movement.
-                            </p>
-                            ${regions.length > 0 ? `
-                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
-                                    ${regions.map(r => `
-                                        <div style="background: rgba(255,255,255,0.05); padding: 0.75rem; border-radius: 8px;">
-                                            <div style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">Frame ${r.frame_index}</div>
-                                            <div style="font-size: 1.1rem; font-weight: 600; color: white;">${r.motion_percentage}%</div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            ` : ''}
-                        </div>
-                    `;
+            if(res.motion_analysis?.enabled) {
+                const mSec = document.getElementById('motionAnalysisSection');
+                const mBox = document.getElementById('motionAnalysisResults');
+                mSec.style.display = 'block';
+                if(res.motion_analysis.motion_detected) {
+                    mBox.innerHTML = `<div style="color: var(--success); font-weight: 700; margin-bottom: 1rem;">Significant Kinetic Signature Detected</div>`;
+                    const grid = document.createElement('div');
+                    grid.style.display = 'grid';
+                    grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(120px, 1fr))';
+                    grid.style.gap = '0.5rem';
+                    (res.motion_analysis.motion_regions || []).forEach(r => {
+                        grid.innerHTML += `<div style="background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 12px; font-size: 0.8rem;">
+                            <div style="opacity: 0.4">Frame ${r.frame_index}</div>
+                            <div style="font-weight: 800">${r.motion_percentage}%</div>
+                        </div>`;
+                    });
+                    mBox.appendChild(grid);
                 } else {
-                    motionResults.innerHTML = '<p style="color: rgba(255,255,255,0.6); margin: 1rem 0;">No significant motion detected in this video.</p>';
+                    mBox.innerHTML = '<div style="opacity: 0.4">Kinetic variance below threshold.</div>';
                 }
             }
-
-            // 4. Specific Search Results
-            const searchSection = document.getElementById('specificSearchSection');
-            const searchResults = document.getElementById('specificSearchResults');
-            searchResults.innerHTML = '';
-
-            if (analysisResults.specific_search?.enabled && analysisResults.specific_search.matches?.length > 0) {
-                searchSection.style.display = 'block';
-                const targetType = analysisResults.specific_search.target_type;
-
-                analysisResults.specific_search.matches.forEach(match => {
-                    const label = match.confidence ?
-                        `${match.label} (${Math.round(match.confidence * 100)}%)` :
-                        match.label;
-                    searchResults.appendChild(createDetectionCard(label, match.image_url));
-                });
-            } else if (analysisResults.specific_search?.enabled) {
-                searchSection.style.display = 'block';
-                searchResults.innerHTML = '<p style="color: rgba(255,255,255,0.6); margin: 1rem 0;">Target not found in this video.</p>';
-            }
-
-            // 5. Transcript
-            document.getElementById('resTranscript').innerText = data.transcript || "No transcript generated.";
-
-            inputSection.style.display = 'none';
-            resultsSection.style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        document.getElementById('newAnalysisBtn').addEventListener('click', () => {
-            document.getElementById('resultsSection').style.display = 'none';
-            document.getElementById('inputSection').style.display = 'block';
+        function renderResult(sectionId, containerId, items) {
+            const section = document.getElementById(sectionId);
+            const container = document.getElementById(containerId);
+            if(items && items.length > 0) {
+                section.style.display = 'block';
+                container.innerHTML = items.map(item => `
+                    <div class="visual-card">
+                        <img src="http://localhost:8000${item.image_url}" alt="${item.label}">
+                        <div class="visual-info">${item.label}</div>
+                    </div>
+                `).join('');
+            }
+        }
 
-            // Hide all analysis sections
-            document.getElementById('objectDetectionSection').style.display = 'none';
-            document.getElementById('faceDetectionSection').style.display = 'none';
-            document.getElementById('motionAnalysisSection').style.display = 'none';
-            document.getElementById('specificSearchSection').style.display = 'none';
-
-            // Reset Form State
-            fileInput.value = '';
-            imageInput.value = '';
-            videoFileName.innerText = 'Drop your video here or click to browse';
-            imgPreview.style.display = 'none';
-            imageFileName.innerText = 'Upload sample photo';
-            document.querySelectorAll('input[name="detection"]').forEach(i => {
-                i.checked = false;
-                i.closest('.detection-option').classList.remove('selected');
-            });
-            targetImageSection.style.display = 'none';
-            updateProcessButtonState();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        // Initialize
-        updateProcessButtonState();
+        document.getElementById('newAnalysisBtn').addEventListener('click', () => location.reload());
     </script>
 </body>
+</html>
 
 </html>

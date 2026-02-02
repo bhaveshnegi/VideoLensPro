@@ -58,6 +58,9 @@ class Settings(BaseSettings):
     FACENET_MODEL_PATH: str = Field(default="models/.deepFace/weights/facenet512_weights.h5", env="FACENET_MODEL_PATH")
     WHISPER_MODEL_PATH: str = Field(default="models/whisper/tiny", env="WHISPER_MODEL_PATH")
     
+    # Hugging Face
+    HUGGINGFACE_API_KEY: Optional[str] = Field(default=None, env="HUGGINGFACE_API_KEY")
+    
     # Logging
     LOG_LEVEL: str = Field(default="INFO", env="LOG_LEVEL")
     LOG_FORMAT: str = Field(default="json", env="LOG_FORMAT")  # json or text

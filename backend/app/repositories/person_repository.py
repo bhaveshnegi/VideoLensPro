@@ -18,6 +18,9 @@ class PersonRepository:
         
         for doc in self.collection.find({}, {"embedding": 1}):
             stored = np.array(doc["embedding"], dtype=np.float32)
+            if stored.shape != embedding.shape:
+                continue
+                
             stored = stored / (np.linalg.norm(stored) + 1e-8)
             
             if np.dot(embedding, stored) > (1 - threshold):

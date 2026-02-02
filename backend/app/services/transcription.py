@@ -1,74 +1,76 @@
+import requests
+import time
 from pathlib import Path
-from faster_whisper import WhisperModel
-from transformers import pipeline, AutoTokenizer
-import torch
+from app.core.config import settings
+from app.core.logging import get_logger
+
+logger = get_logger(__name__)
 
 class TranscriptionService:
-    def __init__(self, model_size="small"):
-        # Initialize Whisper
-        self.model = WhisperModel(
-            model_size,
-            device="cpu",
-            compute_type="int8"
-        )
+    def __init__(self):
+        self.transcribe_url = "https://router.huggingface.co/hf-inference/models/openai/whisper-large-v3"
+        self.toxicity_url = "https://router.huggingface.co/hf-inference/models/unitary/toxic-bert"
+        self.auth_header = {"Authorization": f"Bearer {settings.HUGGINGFACE_API_KEY}"}
 
-        # Toxicity model
-        model_name = "unitary/toxic-bert"
-
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.toxicity_model = pipeline(
-            "text-classification",
-            model=model_name,
-            tokenizer=self.tokenizer,
-            device=0 if torch.cuda.is_available() else -1
-        )
-
-    def _chunk_text(self, text, max_tokens=500):
-        """
-        Split text into token-aware chunks for BERT.
-        """
-        tokens = self.tokenizer(
-            text,
-            add_special_tokens=False,
-            return_attention_mask=False
-        )["input_ids"]
-
-        for i in range(0, len(tokens), max_tokens):
-            chunk_tokens = tokens[i:i + max_tokens]
-            yield self.tokenizer.decode(chunk_tokens)
+    def _query_api(self, url, data, is_json=False):
+        for attempt in range(3):
+            try:
+                headers = self.auth_header.copy()
+                if is_json:
+                    headers["Content-Type"] = "application/json"
+                    response = requests.post(url, headers=headers, json=data, timeout=60)
+                else:
+                    headers["Content-Type"] = "audio/wav"  # Whisper prefers wav/flac
+                    response = requests.post(url, headers=headers, data=data, timeout=60)
+                
+                if response.status_code == 200:
+                    return response.json()
+                elif response.status_code == 503: # Model loading
+                    time.sleep(10)
+                    continue
+                else:
+                    logger.error(f"HF API Error ({url}): {response.status_code} - {response.text}")
+                    return None
+            except Exception as e:
+                logger.error(f"HF API request failed ({url}): {e}")
+                time.sleep(2)
+        return None
 
     def transcribe(self, audio_path: Path):
         """
-        Transcribe audio and detect abusive/toxic content.
+        Transcribe audio using Hugging Face Whisper and detect toxicity.
         """
-        segments, info = self.model.transcribe(str(audio_path))
-        text = " ".join(seg.text for seg in segments).strip()
+        logger.info(f"Transcribing audio file: {audio_path}")
+        
+        with open(audio_path, "rb") as f:
+            audio_data = f.read()
 
+        # 1. Transcribe
+        transcription_result = self._query_api(self.transcribe_url, audio_data)
+        text = ""
+        if transcription_result and isinstance(transcription_result, dict):
+            text = transcription_result.get("text", "").strip()
+        
         if not text:
             return {
                 "text": "",
                 "toxicity": None,
-                "language": info.language,
+                "language": "unknown",
                 "is_toxic": False
             }
 
-        toxicity_results = []
-
-        # ✅ Chunked inference
-        for chunk in self._chunk_text(text):
-            chunk_results = self.toxicity_model(
-                chunk,
-                truncation=True,
-                max_length=512
-            )
-            toxicity_results.extend(chunk_results)
-
-        # Filter toxic labels
-        toxic_labels = [r for r in toxicity_results if r["score"] > 0.5]
+        # 2. Toxicity Check
+        toxicity_results = self._query_api(self.toxicity_url, {"inputs": text}, is_json=True)
+        
+        toxic_labels = []
+        if toxicity_results and isinstance(toxicity_results, list) and len(toxicity_results) > 0:
+            # toxic-bert returns a list of lists of dicts: [[{'label': 'toxic', 'score': ...}, ...]]
+            inner_results = toxicity_results[0]
+            toxic_labels = [r for r in inner_results if r["score"] > 0.5 and r["label"] != "non-toxic"]
 
         return {
             "text": text,
-            "language": info.language,
+            "language": "en", # Whisper large usually detects, but free API response might be simplified
             "toxicity": toxic_labels,
             "is_toxic": len(toxic_labels) > 0,
             "confidence": {
