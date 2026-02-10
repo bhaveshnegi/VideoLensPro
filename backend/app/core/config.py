@@ -28,6 +28,10 @@ class Settings(BaseSettings):
     MONGODB_MAX_POOL_SIZE: int = Field(default=10, env="MONGODB_MAX_POOL_SIZE")
     MONGODB_TIMEOUT_MS: int = Field(default=5000, env="MONGODB_TIMEOUT_MS")
     
+    # ChromaDB (Vector Database)
+    CHROMA_HOST: str = Field(default="chromadb", env="CHROMA_HOST")
+    CHROMA_PORT: int = Field(default=8000, env="CHROMA_PORT")
+    
     # Redis (for caching and rate limiting)
     REDIS_URL: str = Field(default="redis://localhost:6379", env="REDIS_URL")
     REDIS_PASSWORD: Optional[str] = Field(default=None, env="REDIS_PASSWORD")

@@ -8,6 +8,7 @@ import cv2
 from pathlib import Path
 from app.core.config import settings
 from app.core.logging import get_logger
+from app.services.vector_db import vector_db
 
 logger = get_logger(__name__)
 
@@ -81,8 +82,26 @@ class FaceRecognitionService:
                         break
                 
                 if is_unique:
+                    # Query ChromaDB to see if we've seen this face in other videos
+                    search_results = vector_db.query_faces(emb_norm.tolist(), n_results=1)
+                    
+                    # If we found a very close match in the DB, it's not "globally" unique
+                    # but might be unique for this video's current processing run.
+                    # For now, let's just store all unique faces per video run into the DB.
+                    
+                    face_id = f"face_{uuid.uuid4().hex[:8]}"
+                    vector_db.add_face(
+                        face_id=face_id,
+                        embedding=emb_norm.tolist(),
+                        metadata={
+                            "image_url": result["image_url"],
+                            "timestamp": time.time()
+                        }
+                    )
+
                     known_embeddings.append(emb)
                     unique_faces.append({
+                        "face_id": face_id,
                         "embedding": emb,
                         "image_url": result["image_url"]
                     })

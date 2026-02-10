@@ -3,8 +3,6 @@
 # ===============================
 FROM python:3.11-slim
 
-LABEL maintainer="Video Analyzer Team" version="2.3"
-
 # Environment setup
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -31,17 +29,17 @@ COPY requirements.txt .
 RUN python -m venv /opt/venv && \
     /opt/venv/bin/pip install --no-cache-dir --upgrade pip setuptools wheel && \
     /opt/venv/bin/pip install --no-cache-dir \
-        torch==2.9.0+cpu \
-        torchvision==0.24.0+cpu \
-        torchaudio==2.9.0+cpu && \
-    /opt/venv/bin/pip install --no-cache-dir -r requirements.txt && \
+        torch==2.3.1+cpu \
+        torchvision==0.18.1+cpu \
+        torchaudio==2.3.1+cpu \
+        -f https://download.pytorch.org/whl/cpu/torch_stable.html && \
+    /opt/venv/bin/pip install --no-cache-dir --use-deprecated=legacy-resolver -r requirements.txt && \
     rm -rf ~/.cache/pip
 
 # -------------------------------
 # Copy Project Files
 # -------------------------------
 COPY app/ ./app/
-COPY models/ ./models/
 COPY data/ ./data/
 
 # -------------------------------

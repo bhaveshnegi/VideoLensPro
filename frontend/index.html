@@ -372,6 +372,36 @@
             }
         }
 
+        /* Tabs */
+        .tab-btn {
+            background: none;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 100px;
+        }
+
         /* Responsive */
         @media (max-width: 850px) {
             .results-container {
@@ -383,6 +413,12 @@
 
 <body>
     <div class="pro-container">
+        <!-- Navigation Tabs -->
+        <nav style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 2rem;">
+            <button class="tab-btn active" onclick="switchSection('inputSection', this)">Analyze</button>
+            <button class="tab-btn" onclick="switchSection('searchSection', this)">Search & Discovery</button>
+        </nav>
+
         <!-- Input Dashboard -->
         <div id="inputSection">
             <header class="header-section">
@@ -488,6 +524,61 @@
                             Synthesizing Intelligence</div>
                         <div style="color: var(--text-muted); font-size: 0.9rem;">Applying neural networks to your
                             media... <span id="progressValue">0</span>%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search & Discovery Section -->
+        <div id="searchSection" style="display: none;">
+            <header class="header-section">
+                <span class="badge">Global Vector Search</span>
+                <h1>Cross-Media Discovery</h1>
+                <p class="subtitle">Search across all your processed videos using natural language or face matching.</p>
+            </header>
+
+            <div class="glass-panel" style="max-width: 900px; margin: 0 auto;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <!-- Semantic Search -->
+                    <div style="border-right: 1px solid var(--border); padding-right: 2rem;">
+                        <div class="step-header">
+                            <i class="fas fa-magnifying-glass" style="color: var(--primary);"></i>
+                            <span class="step-title">Semantic Query</span>
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                            Search for specific scenes, objects, or actions using natural language.
+                        </p>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="semanticQuery" placeholder="e.g. 'a person running', 'coffee mug'" 
+                                style="flex: 1; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border); outline: none;">
+                            <button class="pro-btn btn-main" style="width: auto; padding: 0.75rem 1.5rem;" onclick="performSemanticSearch()">
+                                Search
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Face Search -->
+                    <div>
+                        <div class="step-header">
+                            <i class="fas fa-user-tag" style="color: var(--accent);"></i>
+                            <span class="step-title">Biometric Search</span>
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                            Find a specific person across all your videos by uploading their photo.
+                        </p>
+                        <div class="drop-zone" style="height: 100px;" onclick="document.getElementById('searchFaceInput').click()">
+                            <i class="fas fa-image" style="font-size: 1.5rem;"></i>
+                            <div class="drop-zone-text" id="searchFaceName" style="font-size: 0.9rem;">Upload face photo</div>
+                            <input type="file" id="searchFaceInput" accept="image/*" style="display: none;" onchange="performFaceSearch(this)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Results Area -->
+                <div id="globalSearchResults" style="margin-top: 3rem; display: none; padding-top: 2rem; border-top: 1px solid var(--border);">
+                    <h3 style="margin-bottom: 1.5rem;">Search Results</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.5rem;" id="searchItemsGrid">
+                        <!-- Results injected here -->
                     </div>
                 </div>
             </div>
@@ -743,6 +834,85 @@
                     </div>
                 `).join('');
             }
+        }
+
+        // Search Implementation
+        function switchSection(sectionId, btn) {
+            document.getElementById('inputSection').style.display = sectionId === 'inputSection' ? 'block' : 'none';
+            document.getElementById('searchSection').style.display = sectionId === 'searchSection' ? 'block' : 'none';
+            document.getElementById('resultsSection').style.display = 'none';
+            
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        async function performSemanticSearch() {
+            const query = document.getElementById('semanticQuery').value;
+            if (!query) return;
+
+            const grid = document.getElementById('searchItemsGrid');
+            const area = document.getElementById('globalSearchResults');
+            area.style.display = 'block';
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Searching neural index...</div>';
+
+            try {
+                const response = await fetch(`http://localhost:8000/api/v1/search/semantic?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                renderSearchResults(data.matches);
+            } catch (err) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--error);">Search failed: ${err.message}</div>`;
+            }
+        }
+
+        async function performFaceSearch(input) {
+            if (!input.files[0]) return;
+            
+            const grid = document.getElementById('searchItemsGrid');
+            const area = document.getElementById('globalSearchResults');
+            const label = document.getElementById('searchFaceName');
+            
+            area.style.display = 'block';
+            label.textContent = input.files[0].name;
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Analyzing face features...</div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', input.files[0]);
+                
+                const response = await fetch('http://localhost:8000/api/v1/search/face', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                renderSearchResults(data.matches);
+            } catch (err) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--error);">Biometric search failed: ${err.message}</div>`;
+            }
+        }
+
+        function renderSearchResults(matches) {
+            const grid = document.getElementById('searchItemsGrid');
+            if (!matches || matches.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No significant matches found in the vector space.</div>';
+                return;
+            }
+
+            grid.innerHTML = matches.map(match => {
+                const meta = match.metadata;
+                // For frames, we have filename/path. For faces, we have image_url.
+                const imgSource = meta.image_url || `http://localhost:8000/api/v1/video/thumbnail/${meta.filename}`;
+                const label = meta.video_name ? `Found in ${meta.video_name}` : `Person Score: ${Math.round(match.score * 100)}%`;
+
+                return `
+                    <div class="visual-card">
+                        <img src="${imgSource}" alt="Match">
+                        <div class="visual-info" style="font-size: 0.75rem;">
+                            <div style="font-weight: 800; color: var(--primary);">${Math.round(match.score * 100)}% Match</div>
+                            <div style="opacity: 0.7;">${label}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         document.getElementById('newAnalysisBtn').addEventListener('click', () => location.reload());

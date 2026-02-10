@@ -19,6 +19,8 @@ from app.services.object_detector import ObjectDetector
 from app.services.transcription import TranscriptionService
 from app.services.face_recognition import FaceRecognitionService
 from app.services.video_quality_service import VideoQualityService
+from app.services.search_service import search_service
+from app.services.vector_db import vector_db
 from app.repositories.person_repository import PersonRepository
 from app.repositories.upload_repository import UploadRepository
 from app.core.config import settings
@@ -322,7 +324,29 @@ async def _process_video_sync(
                 # Store all detected objects as matches for object search
                 results["analysis_results"]["specific_search"]["matches"] = all_detections
 
-        # 5. Transcription
+        # 5. Semantic Indexing (New Feature)
+        if frames_dir:
+            logger.info(f"Starting semantic indexing for job {request_id}")
+            frame_embeddings = search_service.embed_frames(frames_dir)
+            if frame_embeddings:
+                f_ids = [f"{request_id}_{f['filename']}" for f in frame_embeddings]
+                f_embs = [f["embedding"] for f in frame_embeddings]
+                f_metas = [{
+                    "job_id": request_id,
+                    "filename": f["filename"],
+                    "path": f["path"],
+                    "video_name": metadata.get("filename", "unknown")
+                } for f in frame_embeddings]
+                
+                vector_db.add_frames(
+                    job_id=request_id,
+                    frame_ids=f_ids,
+                    embeddings=f_embs,
+                    metadatas=f_metas
+                )
+                logger.info(f"Indexed {len(frame_embeddings)} frames for job {request_id}")
+
+        # 6. Transcription
         transcription_service = TranscriptionService()
         try:
             audio_path = extract_audio(video_path, tmp_path / "audio.wav")
