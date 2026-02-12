@@ -324,37 +324,50 @@ async def _process_video_sync(
                 # Store all detected objects as matches for object search
                 results["analysis_results"]["specific_search"]["matches"] = all_detections
 
-        # 5. Semantic Indexing (New Feature)
-        if frames_dir:
-            logger.info(f"Starting semantic indexing for job {request_id}")
-            frame_embeddings = search_service.embed_frames(frames_dir)
-            if frame_embeddings:
-                f_ids = [f"{request_id}_{f['filename']}" for f in frame_embeddings]
-                f_embs = [f["embedding"] for f in frame_embeddings]
-                f_metas = [{
-                    "job_id": request_id,
-                    "filename": f["filename"],
-                    "path": f["path"],
-                    "video_name": metadata.get("filename", "unknown")
-                } for f in frame_embeddings]
-                
-                vector_db.add_frames(
-                    job_id=request_id,
-                    frame_ids=f_ids,
-                    embeddings=f_embs,
-                    metadatas=f_metas
-                )
-                logger.info(f"Indexed {len(frame_embeddings)} frames for job {request_id}")
-
-        # 6. Transcription
+        # 5. Transcription
         transcription_service = TranscriptionService()
+        transcript_text = ""
         try:
             audio_path = extract_audio(video_path, tmp_path / "audio.wav")
             transcript = transcription_service.transcribe(audio_path)
-            results["transcript"] = transcript.get("text", "")
+            transcript_text = transcript.get("text", "")
+            results["transcript"] = transcript_text
         except Exception as e:
             logger.warning(f"Transcription failed: {e}")
             results["transcript"] = ""
+
+        # 6. Semantic Indexing (Specialized Text Mode - Option B)
+        # We index the transcript and prominent object labels for search
+        logger.info(f"Starting specialized semantic indexing for job {request_id}")
+        
+        object_labels = list(set([d.get("label", "") for d in results["analysis_results"]["object_detection"]["detections"]]))
+        
+        # Combine labels and transcript into semantic segments
+        semantic_segments = []
+        if transcript_text:
+            semantic_segments.append(transcript_text)
+        if object_labels:
+            semantic_segments.append(f"Objects detected: {', '.join(object_labels)}")
+            
+        if semantic_segments:
+            # For now, let's treat the whole video metadata as one high-quality segment
+            # You could split transcripts by timestamp here for deeper "Jump to" search
+            combined_text = " ".join(semantic_segments)
+            embedding = search_service.embed_text(combined_text)
+            
+            if embedding:
+                vector_db.add_frames(
+                    job_id=request_id,
+                    frame_ids=[f"{request_id}_metadata"],
+                    embeddings=[embedding],
+                    metadatas=[{
+                        "job_id": request_id,
+                        "type": "video_metadata",
+                        "content": combined_text[:500], # Store snippet
+                        "video_name": metadata.get("filename", "unknown")
+                    }]
+                )
+                logger.info(f"Indexed specialized metadata for job {request_id}")
         
         # Save upload record (simplified without score)
         upload_repo.create({

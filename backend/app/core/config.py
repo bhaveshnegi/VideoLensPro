@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     # ChromaDB (Vector Database)
     CHROMA_HOST: str = Field(default="chromadb", env="CHROMA_HOST")
     CHROMA_PORT: int = Field(default=8000, env="CHROMA_PORT")
+    ANONYMIZED_TELEMETRY: bool = Field(default=False, env="ANONYMIZED_TELEMETRY")
     
     # Redis (for caching and rate limiting)
     REDIS_URL: str = Field(default="redis://localhost:6379", env="REDIS_URL")
@@ -70,6 +71,7 @@ class Settings(BaseSettings):
     LOG_FORMAT: str = Field(default="json", env="LOG_FORMAT")  # json or text
     LOG_FILE: Optional[str] = Field(default=None, env="LOG_FILE")
     LOG_TO_CONSOLE: bool = Field(default=True, env="LOG_TO_CONSOLE")
+    AI_LOG_DIR: str = Field(default="AI_logs", env="AI_LOG_DIR")
     
     # Monitoring
     ENABLE_METRICS: bool = Field(default=True, env="ENABLE_METRICS")

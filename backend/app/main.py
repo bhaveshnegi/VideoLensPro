@@ -1,4 +1,16 @@
 import os
+os.environ["ANONYMIZED_TELEMETRY"] = "false"
+
+# Robustly silence ChromaDB telemetry by monkey-patching posthog
+try:
+    import posthog
+    def silence_posthog(*args, **kwargs): pass
+    posthog.capture = silence_posthog
+    if hasattr(posthog, 'Posthog'):
+        posthog.Posthog.capture = silence_posthog
+except ImportError:
+    pass
+
 import warnings
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
@@ -22,6 +34,14 @@ warnings.filterwarnings("ignore", module="ctranslate2")
 # Setup logging
 setup_logging()
 logger = get_logger(__name__)
+
+# Silence the harmless ChromaDB telemetry error
+import logging
+class ChromaTelemetryFilter(logging.Filter):
+    def filter(self, record):
+        return "telemetry" not in record.getMessage().lower()
+
+logging.getLogger("chromadb.telemetry").addFilter(ChromaTelemetryFilter())
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

@@ -1,8 +1,20 @@
+import os
+os.environ["ANONYMIZED_TELEMETRY"] = "false"
+
+# Robustly silence ChromaDB telemetry by monkey-patching posthog
+try:
+    import posthog
+    def silence_posthog(*args, **kwargs): pass
+    posthog.capture = silence_posthog
+    if hasattr(posthog, 'Posthog'):
+        posthog.Posthog.capture = silence_posthog
+except ImportError:
+    pass
+
 import chromadb
 from chromadb.config import Settings
 import logging
 from typing import List, Dict, Any, Optional
-import os
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -15,12 +27,18 @@ class VectorDBService:
         port = settings.CHROMA_PORT
         
         try:
-            self.client = chromadb.HttpClient(host=host, port=port)
+            self.client = chromadb.HttpClient(
+                host=host, 
+                port=port,
+                settings=Settings(anonymized_telemetry=False)
+            )
             logger.info(f"Connected to ChromaDB at {host}:{port}")
         except Exception as e:
             logger.error(f"Failed to connect to ChromaDB: {e}")
             # Fallback to ephemeral client for testing if server is down
-            self.client = chromadb.EphemeralClient()
+            self.client = chromadb.EphemeralClient(
+                settings=Settings(anonymized_telemetry=False)
+            )
             logger.warning("Using EphemeralClient as fallback")
 
         # Initialize collections
@@ -56,15 +74,20 @@ class VectorDBService:
             return {"ids": [[]], "distances": [[]], "metadatas": [[]]}
 
     def add_frames(self, job_id: str, frame_ids: List[str], embeddings: List[List[float]], metadatas: List[Dict[str, Any]]):
-        """Add video frame embeddings for semantic search."""
+        """Add text segments or frame embeddings for semantic search."""
         try:
+            # ChromaDB handles dimension shifts automatically on first add, 
+            # but we should log if we see a mismatch
+            if embeddings and len(embeddings[0]) != 384:
+                logger.debug(f"Adding embeddings with dimension {len(embeddings[0])}")
+                
             self.frames_collection.add(
                 ids=frame_ids,
                 embeddings=embeddings,
                 metadatas=metadatas
             )
         except Exception as e:
-            logger.error(f"Error adding frames to ChromaDB: {e}")
+            logger.error(f"Error adding frames/segments to ChromaDB: {e}")
 
     def query_frames(self, query_embedding: List[float], n_results: int = 10) -> Dict[str, Any]:
         """Search for frames by semantic meaning (text query embedding)."""
